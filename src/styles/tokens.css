@@ -1,0 +1,144 @@
+/*
+ * FitCoach Client Portal — Design Tokens
+ *
+ * Ported from fitcoach-crm/app/assets/css/main.css (the coach app's design system).
+ * The brand palette and semantic tokens are intentionally identical so the portal
+ * feels like the same company's product. Portal-only additions live below the
+ * "PORTAL EXTENSIONS" marker.
+ *
+ * Token decisions are pinned by /plan-design-review (Decision 7A).
+ * NEVER override these per-component — they bind all of shadcn's CSS variables.
+ */
+
+:root {
+  /* ── Brand palette (invariant across modes) ── */
+  --green-brand:  #1A7A4A;
+  --green-light:  #2ECC71;
+  --green-deep:   #0F2418;
+  --green-deep2:  #0A1C11;
+  --green-pale:   #E8F5EE;
+  --green-mid:    #3DAA6A;
+  --green-soft:   #C8E6D4;
+  --green-hover:  #15693E;
+  --green-muted:  rgba(46, 204, 113, .12);
+  --red:          #EF4444;
+
+  /* ── Semantic tokens: text ── */
+  --text-primary:   #1A2E1F;
+  --text-secondary: #4A6B54;
+  --text-muted:     #8A9E93;
+  --text-accent:    var(--green-brand);
+
+  /* ── Semantic tokens: surfaces ── */
+  --bg-page:            #FFFFFF;
+  --bg-surface:         #FFFFFF;
+  --bg-surface-raised:  #FFFFFF;
+  --bg-surface-muted:   #E4ECE8;
+  --bg-input:           #F7FAF8;
+  --bg-primary-soft:    var(--green-pale);
+
+  /* ── Semantic tokens: borders ── */
+  --border:        #E2EBE6;
+  --border-muted:  #F3F6F4;
+  --border-strong: #C0CECA;
+
+  /* ── Shadows (light mode — brand-tinted) ── */
+  --shadow-card:         0 2px 16px rgba(26, 122, 74, .09), 0 1px 4px rgba(0, 0, 0, .05);
+  --shadow-lift:         0 8px 32px rgba(26, 122, 74, .14), 0 2px 8px rgba(0, 0, 0, .07);
+  --shadow-float:        0 20px 60px rgba(0, 0, 0, .3),    0 4px 16px rgba(0, 0, 0, .2);
+  --shadow-button:       0 3px 14px rgba(26, 122, 74, .32);
+  --shadow-button-hover: 0 5px 20px rgba(26, 122, 74, .38);
+
+  /* ── Radius scale (intentional, not uniform) ── */
+  --radius-sm:   8px;   /* small chips */
+  --radius-md:   10px;  /* inputs */
+  --radius-lg:   14px;  /* cards */
+  --radius-xl:   18px;  /* sheets */
+  --radius-2xl:  22px;  /* hero card */
+  --radius-pill: 999px;
+
+  /* ── Transitions ── */
+  --t-fast: 150ms;
+  --t-base: 200ms;
+  --t-slow: 300ms;
+
+  /* ── Type ── */
+  --font-display: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-body:    'Inter', system-ui, -apple-system, sans-serif;
+
+  /* ─────────────────────────────────────────────────────────────
+   * PORTAL EXTENSIONS (not in coach app)
+   * Fire palette — used only on the streak/escalation surfaces.
+   * Tier mapping is documented in features/check-ins/utils/streak-derive.ts.
+   * ─────────────────────────────────────────────────────────────
+   */
+  --fire-1:    #FFC83D; /* tier 1: weeks 3–6   — warm amber */
+  --fire-2:    #FF8A3D; /* tier 2: weeks 7–13  — orange */
+  --fire-3:    #FF5A3D; /* tier 3: weeks 14–29 — red-orange */
+  --fire-4:    #E83A2D; /* tier 4: weeks 30+   — deep red */
+  --fire-grad: linear-gradient(135deg, #FFC83D 0%, #FF8A3D 50%, #FF5A3D 100%);
+}
+
+/*
+ * Dark mode overrides (Decision 8A — wired but NOT toggled in v1).
+ * The .dark class swap lives here so adding a v1.1 toggle is CSS-only,
+ * not a refactor. Brand palette stays intact; only semantic tokens move.
+ */
+.dark {
+  --text-primary:   #F5F7F6;
+  --text-secondary: #A8C2B3;
+  --text-muted:     #7A8F83;
+  --text-accent:    var(--green-light);
+
+  --red: #F87171;
+
+  --bg-page:            var(--green-deep2);
+  --bg-surface:         var(--green-deep);
+  --bg-surface-raised:  #132E1F;
+  --bg-surface-muted:   rgba(255, 255, 255, .05);
+  --bg-input:           #0A1A11;
+  --bg-primary-soft:    rgba(46, 204, 113, .15);
+
+  --border:        rgba(255, 255, 255, .10);
+  --border-muted:  rgba(255, 255, 255, .06);
+  --border-strong: rgba(255, 255, 255, .20);
+
+  --shadow-card:         none;
+  --shadow-lift:         none;
+  --shadow-float:        0 20px 60px rgba(0, 0, 0, .5), 0 4px 16px rgba(0, 0, 0, .35);
+  --shadow-button:       none;
+  --shadow-button-hover: 0 0 0 1px rgba(46, 204, 113, .4);
+}
+
+/*
+ * shadcn/ui CSS variable bridge (Decision 7A — second pass).
+ * shadcn components read these names. We bind them to the brand tokens so
+ * every shadcn component automatically inherits the FitCoach brand without
+ * per-component overrides.
+ *
+ * shadcn typically uses HSL channels (e.g. `0 0% 100%`) but newer shadcn
+ * setups accept full color values too. Tailwind v4's @theme directive in
+ * index.css will expose these as utility classes (bg-background, text-foreground).
+ */
+:root {
+  --background:        var(--bg-page);
+  --foreground:        var(--text-primary);
+  --card:              var(--bg-surface);
+  --card-foreground:   var(--text-primary);
+  --popover:           var(--bg-surface-raised);
+  --popover-foreground: var(--text-primary);
+  --primary:           var(--green-brand);
+  --primary-foreground: #FFFFFF;
+  --secondary:         var(--bg-surface-muted);
+  --secondary-foreground: var(--text-primary);
+  --muted:             var(--bg-input);
+  --muted-foreground:  var(--text-muted);
+  --accent:            var(--green-pale);
+  --accent-foreground: var(--green-brand);
+  --destructive:       var(--red);
+  --destructive-foreground: #FFFFFF;
+  --border-default:    var(--border);
+  --input:             var(--bg-input);
+  --ring:              var(--green-brand);
+  --radius:            var(--radius-lg);
+}

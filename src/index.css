@@ -1,0 +1,98 @@
+/*
+ * FitCoach Client Portal — global styles entry point.
+ *
+ * Order matters:
+ *   1. Tailwind v4 layer (provides utilities)
+ *   2. Brand tokens (defines :root + .dark CSS variables)
+ *   3. @theme — exposes brand tokens as Tailwind utilities
+ *   4. Global base styles (body, focus rings, scroll, etc.)
+ */
+
+@import "tailwindcss";
+@import "./styles/tokens.css";
+
+/*
+ * Tailwind v4 @theme — maps our brand tokens to utility classes.
+ * After this, `bg-background`, `text-foreground`, `bg-primary`, `text-primary-foreground`,
+ * `border-border`, `text-muted-foreground`, etc. all resolve to brand values.
+ *
+ * This is the bridge between the design tokens (CSS variables) and Tailwind's
+ * utility-first authoring. shadcn components rely on these utility names.
+ */
+@theme {
+  --color-background:           var(--bg-page);
+  --color-foreground:           var(--text-primary);
+  --color-card:                 var(--bg-surface);
+  --color-card-foreground:      var(--text-primary);
+  --color-popover:              var(--bg-surface-raised);
+  --color-popover-foreground:   var(--text-primary);
+  --color-primary:              var(--green-brand);
+  --color-primary-foreground:   #FFFFFF;
+  --color-primary-hover:        var(--green-hover);
+  --color-primary-pale:         var(--green-pale);
+  --color-secondary:            var(--bg-surface-muted);
+  --color-secondary-foreground: var(--text-primary);
+  --color-muted:                var(--bg-input);
+  --color-muted-foreground:     var(--text-muted);
+  --color-accent:               var(--green-pale);
+  --color-accent-foreground:    var(--green-brand);
+  --color-destructive:          var(--red);
+  --color-border:               var(--border);
+  --color-border-muted:         var(--border-muted);
+  --color-input:                var(--bg-input);
+  --color-ring:                 var(--green-brand);
+
+  /* Fire palette utility classes */
+  --color-fire-1: var(--fire-1);
+  --color-fire-2: var(--fire-2);
+  --color-fire-3: var(--fire-3);
+  --color-fire-4: var(--fire-4);
+
+  /* Radius scale already lives in tokens.css as --radius-*; expose for utilities. */
+  --radius-sm:   8px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   18px;
+  --radius-2xl:  22px;
+
+  --font-sans:    'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* ── Global base styles ─────────────────────────────────────── */
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/*
+ * Focus rings — branded, accessible.
+ * Inherits the coach app's brand-green focus glow rather than the default
+ * shadcn outline. Visible at 3:1 contrast for accessibility.
+ */
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(26, 122, 74, .25);
+  border-radius: var(--radius-sm);
+}
+
+/*
+ * Tap target floor — Apple HIG minimum is 44px, our CTAs are 50px.
+ * Tailwind utilities .h-11 (44px) and .h-12 (48px) cover this; this rule
+ * is a safety net for raw <button>/<a> without explicit height.
+ */
+button,
+[role="button"] {
+  min-height: 44px;
+}
