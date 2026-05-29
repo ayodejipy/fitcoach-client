@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthAcceptInviteRouteImport } from './routes/_auth/accept-invite'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
+import { Route as AppCheckInRouteImport } from './routes/_app/check-in'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
@@ -44,15 +45,22 @@ const AppDashboardRoute = AppDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AppRoute,
 } as any)
+const AppCheckInRoute = AppCheckInRouteImport.update({
+  id: '/check-in',
+  path: '/check-in',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/check-in': typeof AppCheckInRoute
   '/dashboard': typeof AppDashboardRoute
   '/accept-invite': typeof AuthAcceptInviteRoute
   '/login': typeof AuthLoginRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/check-in': typeof AppCheckInRoute
   '/dashboard': typeof AppDashboardRoute
   '/accept-invite': typeof AuthAcceptInviteRoute
   '/login': typeof AuthLoginRoute
@@ -62,20 +70,22 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/_auth': typeof AuthRouteWithChildren
+  '/_app/check-in': typeof AppCheckInRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_auth/accept-invite': typeof AuthAcceptInviteRoute
   '/_auth/login': typeof AuthLoginRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/accept-invite' | '/login'
+  fullPaths: '/' | '/check-in' | '/dashboard' | '/accept-invite' | '/login'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/accept-invite' | '/login'
+  to: '/' | '/check-in' | '/dashboard' | '/accept-invite' | '/login'
   id:
     | '__root__'
     | '/'
     | '/_app'
     | '/_auth'
+    | '/_app/check-in'
     | '/_app/dashboard'
     | '/_auth/accept-invite'
     | '/_auth/login'
@@ -131,14 +141,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/check-in': {
+      id: '/_app/check-in'
+      path: '/check-in'
+      fullPath: '/check-in'
+      preLoaderRoute: typeof AppCheckInRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
+  AppCheckInRoute: typeof AppCheckInRoute
   AppDashboardRoute: typeof AppDashboardRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppCheckInRoute: AppCheckInRoute,
   AppDashboardRoute: AppDashboardRoute,
 }
 

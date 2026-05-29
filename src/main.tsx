@@ -6,7 +6,9 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 import './index.css'
 import { routeTree } from './routeTree.gen'
+import '@/lib/api/client' // side-effect: registers the auth interceptor on the typed fetchClient
 import { queryClient } from '@/lib/api/query-client'
+import { Toaster } from '@/components/feedback/Toaster'
 
 /*
  * App entrypoint.
@@ -51,6 +53,7 @@ createRoot(rootEl).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
+      <Toaster />
       {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   </StrictMode>,

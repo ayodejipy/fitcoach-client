@@ -1,4 +1,6 @@
-import { Outlet, createFileRoute } from '@tanstack/react-router'
+import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
+
+import { useTokensStore } from '@/stores/tokens'
 
 /*
  * `_app` layout — wraps every gated (authenticated) page.
@@ -7,17 +9,26 @@ import { Outlet, createFileRoute } from '@tanstack/react-router'
  *   - mobile (<768px): content single-column, bottom nav fixed.
  *   - desktop (>=768px): left sidebar nav, content column capped ~640px.
  *
- * Auth gate hook (TODO Task T4): the `beforeLoad` here will check the
- * tokens slice in Zustand and `throw redirect({ to: '/login' })` if the
- * client isn't authenticated. Currently a no-op so the empty shell renders.
+ * Auth gate (Decision 1A + 5A): `beforeLoad` checks the Zustand tokens store
+ * synchronously. The check uses `refreshToken` (not access — access is short
+ * and may be expired and refreshable; the interceptor handles that case
+ * transparently). If there's no refresh token, redirect to /login carrying
+ * the requested URL so post-login we can return them there.
+ *
+ * Why read the store here instead of router context: the store is the single
+ * source of truth, and a context-threaded copy would go stale across
+ * login/logout. `getState()` is synchronous and cheap.
  */
 export const Route = createFileRoute('/_app')({
+  beforeLoad: ({ location }) => {
+    if (!useTokensStore.getState().isAuthenticated()) {
+      throw redirect({
+        to: '/login',
+        search: { redirect: location.href },
+      })
+    }
+  },
   component: AppLayout,
-  // beforeLoad: ({ context }) => {
-  //   if (!context.auth?.isAuthenticated) {
-  //     throw redirect({ to: '/login' })
-  //   }
-  // },
 })
 
 function AppLayout() {
