@@ -2230,6 +2230,7 @@
                     "portal-auth"
                 ],
                 "summary": "Accept a portal invite",
+                "operationId": "PortalAcceptInvite",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -2275,6 +2276,7 @@
                     "portal-auth"
                 ],
                 "summary": "Log in to the client portal",
+                "operationId": "PortalLogin",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -2326,6 +2328,7 @@
                     "portal-auth"
                 ],
                 "summary": "Log out of the client portal",
+                "operationId": "PortalLogout",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -2360,6 +2363,7 @@
                     "portal-auth"
                 ],
                 "summary": "Refresh a portal access token",
+                "operationId": "PortalRefresh",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -2416,6 +2420,7 @@
                     "portal-checkins"
                 ],
                 "summary": "List own check-ins",
+                "operationId": "PortalListCheckIns",
                 "parameters": [
                     {
                         "description": "1-indexed page (default 1)",
@@ -2468,6 +2473,7 @@
                     "portal-checkins"
                 ],
                 "summary": "Submit a weekly check-in",
+                "operationId": "PortalSubmitCheckIn",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -2534,6 +2540,7 @@
                     "portal-checkins"
                 ],
                 "summary": "Get one own check-in",
+                "operationId": "PortalGetCheckIn",
                 "parameters": [
                     {
                         "description": "check-in UUID",
@@ -2590,6 +2597,7 @@
                     "portal"
                 ],
                 "summary": "Portal \"who am I\"",
+                "operationId": "PortalGetMe",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -2634,6 +2642,7 @@
                     "portal"
                 ],
                 "summary": "Update own portal profile",
+                "operationId": "PortalUpdateMe",
                 "requestBody": {
                     "content": {
                         "application/json": {
@@ -2690,6 +2699,7 @@
                     "portal-notifications"
                 ],
                 "summary": "List my notifications (client)",
+                "operationId": "PortalListNotifications",
                 "parameters": [
                     {
                         "description": "filter to unread only",
@@ -2751,6 +2761,7 @@
                     "portal-notifications"
                 ],
                 "summary": "Mark all my notifications as read (client)",
+                "operationId": "PortalMarkAllNotificationsRead",
                 "responses": {
                     "204": {
                         "description": "No Content"
@@ -2779,6 +2790,7 @@
                     "portal-notifications"
                 ],
                 "summary": "My unread notification count (client)",
+                "operationId": "PortalUnreadNotificationCount",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -2814,6 +2826,7 @@
                     "portal-notifications"
                 ],
                 "summary": "Delete a notification (client)",
+                "operationId": "PortalDeleteNotification",
                 "parameters": [
                     {
                         "description": "notification UUID",
@@ -2863,6 +2876,7 @@
                     "portal-notifications"
                 ],
                 "summary": "Mark a notification as read (client)",
+                "operationId": "PortalMarkNotificationRead",
                 "parameters": [
                     {
                         "description": "notification UUID",
@@ -2912,6 +2926,7 @@
                     "portal-payments"
                 ],
                 "summary": "List own payments",
+                "operationId": "PortalListPayments",
                 "parameters": [
                     {
                         "description": "1-indexed page (default 1)",
@@ -2965,6 +2980,7 @@
                     "portal-payments"
                 ],
                 "summary": "Get one own payment",
+                "operationId": "PortalGetPayment",
                 "parameters": [
                     {
                         "description": "payment UUID",
@@ -3021,6 +3037,7 @@
                     "portal-sessions"
                 ],
                 "summary": "List own sessions",
+                "operationId": "PortalListSessions",
                 "parameters": [
                     {
                         "description": "RFC3339 lower bound (inclusive)",
@@ -3100,6 +3117,7 @@
                     "portal-sessions"
                 ],
                 "summary": "Get one own session",
+                "operationId": "PortalGetSession",
                 "parameters": [
                     {
                         "description": "session UUID",
@@ -3156,6 +3174,7 @@
                     "portal-uploads"
                 ],
                 "summary": "Upload a progress photo",
+                "operationId": "PortalUploadPhoto",
                 "requestBody": {
                     "content": {
                         "multipart/form-data": {
@@ -3267,6 +3286,7 @@
                     "websocket"
                 ],
                 "summary": "Issue a WebSocket ticket (client portal)",
+                "operationId": "PortalIssueWSTicket",
                 "responses": {
                     "200": {
                         "description": "OK",
