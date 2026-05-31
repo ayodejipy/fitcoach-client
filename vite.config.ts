@@ -44,6 +44,11 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
+        // ws: true upgrades the WebSocket connection through to the backend
+        // (used by `usePortalWs` for the coach-reply nudge). Without this,
+        // the SPA's `new WebSocket('/api/v1/portal/ws?...')` would 404 against
+        // the Vite dev server.
+        ws: true,
       },
     },
   },

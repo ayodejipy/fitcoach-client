@@ -1,23 +1,34 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { LineChart } from 'lucide-react'
+import { createFileRoute, Link } from '@tanstack/react-router'
+import { LineChart as LineChartIcon } from 'lucide-react'
 
-import { ComingSoon } from '@/features/navigation/components/ComingSoon'
+import { Button } from '@/components/ui/button'
+import { EmptyState } from '@/features/progress/components/EmptyState'
+import { PhotosBlock } from '@/features/progress/components/PhotosBlock'
+import { ProgressSkeleton } from '@/features/progress/components/ProgressSkeleton'
+import { TrendsSection } from '@/features/progress/components/TrendsSection'
+import { useProgressData } from '@/features/progress/hooks/useProgressData'
 
 /*
- * `/progress` — placeholder route.
+ * `/progress` — the long-term view.
  *
- * The real implementation lands with Task T9: a horizontally-swipable progress
- * photo timeline + Recharts trend lines for weight/energy/mood (lazy-loaded so
- * Recharts stays out of the main bundle).
+ * Two stacked sections (Decision 1A):
+ *   1. Photo timeline (horizontal swipe carousel of progress photos)
+ *   2. Trends (weight / energy / mood line charts)
  *
- * This stub exists so the nav doesn't 404 on press. Copy previews what's
- * coming so the empty state still feels intentional rather than broken.
+ * Data: `useProgressData` reads from `useCheckIns()` and projects each into
+ * the shapes the components want. The route is a thin presentational composer.
+ *
+ * Recharts is heavy (~80 KB gzip). Vite's `autoCodeSplitting: true` on the
+ * router plugin already lazy-loads each route as its own chunk, so the
+ * Recharts module only downloads when someone navigates to /progress.
  */
 export const Route = createFileRoute('/_app/progress')({
   component: ProgressPage,
 })
 
 function ProgressPage() {
+  const data = useProgressData()
+
   return (
     <div className="space-y-6">
       <header>
@@ -29,11 +40,31 @@ function ProgressPage() {
         </p>
       </header>
 
-      <ComingSoon
-        icon={<LineChart className="h-7 w-7" strokeWidth={1.8} />}
-        title="Trends and photos land next"
-        body="A horizontal photo timeline and weight, energy, and mood charts are on the way."
-      />
+      {data.isLoading ? (
+        <ProgressSkeleton />
+      ) : data.isError ? (
+        <EmptyState
+          icon={<LineChartIcon className="h-6 w-6" strokeWidth={1.8} />}
+          title="Couldn't load progress"
+          body="Try refreshing the page in a moment."
+        />
+      ) : data.totalCheckIns === 0 ? (
+        <EmptyState
+          icon={<LineChartIcon className="h-7 w-7" strokeWidth={1.8} />}
+          title="No check-ins yet"
+          body="Submit your first weekly check-in to start seeing trends and photos here."
+          cta={
+            <Button asChild size="sm">
+              <Link to="/check-in">Start check-in</Link>
+            </Button>
+          }
+        />
+      ) : (
+        <>
+          <PhotosBlock photos={data.photos} />
+          <TrendsSection data={data} />
+        </>
+      )}
     </div>
   )
 }
