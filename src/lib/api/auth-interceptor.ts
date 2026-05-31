@@ -46,6 +46,20 @@ const PUBLIC_PATHS = new Set<string>([
 
 let refreshPromise: Promise<string | null> | null = null
 
+/*
+ * Replay cache.
+ *
+ * Once `fetch(request)` runs, the Request's body stream is consumed and
+ * cannot be re-read — even via .clone(). To replay a POST/PUT/PATCH after
+ * a refresh, we have to stash a fresh clone BEFORE the body is consumed
+ * (i.e. in the request interceptor), then look it up in the response
+ * interceptor on the 401 retry path.
+ *
+ * WeakMap keyed by the original Request so entries die with the Request,
+ * no manual cleanup needed.
+ */
+const replayCache = new WeakMap<Request, Request>()
+
 async function refreshOnce(): Promise<string | null> {
   if (refreshPromise) return refreshPromise
 
@@ -106,12 +120,19 @@ function mergeHeaders(base: Headers, extra: Record<string, string>): Headers {
 }
 
 export function registerAuthInterceptors() {
-  // 1. Request interceptor — attach Bearer on protected paths.
+  // 1. Request interceptor — attach Bearer on protected paths AND, for
+  //    body-bearing methods, stash a fresh clone so the response interceptor
+  //    can replay the request if a refresh-on-401 retry is needed. Cloning
+  //    BEFORE the body is consumed is the only way (Request.clone() after
+  //    fetch() has run yields an already-locked stream).
   client.interceptors.request.use((request) => {
     if (isPublicPath(request.url)) return request
     const token = useTokensStore.getState().accessToken
     if (token) {
       request.headers.set('Authorization', `Bearer ${token}`)
+    }
+    if (request.method !== 'GET' && request.method !== 'HEAD') {
+      replayCache.set(request, request.clone())
     }
     return request
   })
@@ -124,17 +145,16 @@ export function registerAuthInterceptors() {
     const newAccess = await refreshOnce()
     if (!newAccess) return response // let the 401 propagate to error path
 
-    // Replay the original request with the fresh bearer. The retried response
-    // replaces the 401 in the chain — the client treats it as the canonical
-    // response for this call. Note: this replays request body via the same
-    // Request object; for v1 our 401-prone calls are GETs (no body), so this
-    // works without explicit cloning. Add request cloning here if/when a POST
-    // hits 401-then-retry in practice.
-    return fetch(request, {
+    // Replay the original request with the fresh bearer. For body-bearing
+    // methods we use the pre-flight clone (stashed in the request interceptor
+    // above); for GET/HEAD the original Request is safe to reuse.
+    const baseForReplay = replayCache.get(request) ?? request
+    const replay = new Request(baseForReplay, {
       headers: mergeHeaders(request.headers, {
         Authorization: `Bearer ${newAccess}`,
       }),
     })
+    return fetch(replay)
   })
 
   // 3. Error interceptor — normalize thrown body into AppError.
