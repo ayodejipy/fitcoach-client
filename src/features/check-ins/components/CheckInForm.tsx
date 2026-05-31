@@ -19,6 +19,7 @@ import {
   type CheckInSubmitFormValues,
 } from '@/features/check-ins/schemas/check-in-submit'
 import { useSubmitCheckIn } from '@/features/check-ins/hooks/useSubmitCheckIn'
+import { PhotoUpload } from '@/features/progress/components/PhotoUpload'
 
 /*
  * CheckInForm — pure UI for the weekly habit-loop action.
@@ -35,7 +36,9 @@ import { useSubmitCheckIn } from '@/features/check-ins/hooks/useSubmitCheckIn'
  * Week start date comes from the parent (computed via `useStreak().thisMonday`
  * — ISO Monday in the device's local TZ). The user never types it.
  *
- * Photos are deferred to T9 (progress timeline). The form omits them in v1.
+ * Photos are uploaded via the PhotoUpload field (multipart POST per file,
+ * URLs accumulated locally) and submitted as `photo_urls` alongside the
+ * rest of the body.
  */
 
 interface Props {
@@ -55,6 +58,7 @@ export function CheckInForm({ thisMonday, programWeek }: Props) {
       mood_score: undefined as unknown as number,
       sleep_hrs: undefined,
       notes: '',
+      photo_urls: [],
     },
     mode: 'onSubmit',
   })
@@ -214,6 +218,26 @@ export function CheckInForm({ thisMonday, programWeek }: Props) {
                       rows={5}
                       placeholder="Whatever's on your mind."
                       {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Progress photos (optional, up to 4) */}
+          <div className="mt-5">
+            <FormField
+              control={form.control}
+              name="photo_urls"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Progress photos</FormLabel>
+                  <FormControl>
+                    <PhotoUpload
+                      value={field.value ?? []}
+                      onChange={field.onChange}
                     />
                   </FormControl>
                   <FormMessage />

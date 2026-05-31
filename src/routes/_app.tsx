@@ -2,6 +2,7 @@ import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
 
 import { BottomNav } from '@/features/navigation/components/BottomNav'
 import { Sidebar } from '@/features/navigation/components/Sidebar'
+import { useNotificationsRealtime } from '@/features/notifications/hooks/useNotificationsRealtime'
 import { useTokensStore } from '@/stores/tokens'
 
 /*
@@ -37,6 +38,11 @@ export const Route = createFileRoute('/_app')({
 })
 
 function AppLayout() {
+  // Mount the realtime nudge hook ONCE for the whole gated session — it owns
+  // the WS connection, toasts on coach replies, and invalidates the unread
+  // count. Mounting per-route would tear/restart the socket on every nav.
+  useNotificationsRealtime()
+
   return (
     <div className="min-h-dvh bg-background">
       <Sidebar />

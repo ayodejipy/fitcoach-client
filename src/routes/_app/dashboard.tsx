@@ -5,6 +5,7 @@ import { StreakHero } from '@/features/check-ins/components/StreakHero'
 import { useStreak } from '@/features/check-ins/hooks/useStreak'
 import { GreetingHeader } from '@/features/dashboard/components/GreetingHeader'
 import { ThisWeekCard } from '@/features/dashboard/components/ThisWeekCard'
+import { useUnreadCount } from '@/features/notifications/hooks/useUnreadCount'
 import { useMe } from '@/features/profile/hooks/useMe'
 
 /*
@@ -31,6 +32,7 @@ export const Route = createFileRoute('/_app/dashboard')({
 function DashboardPage() {
   const { data: me } = useMe()
   const streak = useStreak()
+  const { count: unread } = useUnreadCount()
 
   return (
     <div className="space-y-5">
@@ -39,6 +41,7 @@ function DashboardPage() {
         coachName={me?.coach_name}
         programWeek={me?.program_week}
         programTotal={me?.program_total}
+        hasUnread={unread > 0}
       />
 
       <StreakHero

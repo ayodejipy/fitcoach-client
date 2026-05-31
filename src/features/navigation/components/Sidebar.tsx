@@ -3,6 +3,7 @@ import { LogOut } from 'lucide-react'
 
 import { NAV_ITEMS } from '@/features/navigation/nav-items'
 import { useLogout } from '@/features/auth/hooks/useLogout'
+import { useUnreadCount } from '@/features/notifications/hooks/useUnreadCount'
 
 /*
  * Sidebar — desktop-only (md+). Fixed to the left edge, full viewport height.
@@ -17,9 +18,13 @@ import { useLogout } from '@/features/auth/hooks/useLogout'
  * equivalent will live behind a settings/account screen (later task), so
  * for now the only way to sign out on mobile is to size up to desktop.
  * Acceptable for v1 — we'll revisit when settings ships.
+ *
+ * Messages tab shows the actual unread count when > 0 — desktop has the
+ * real estate for the number, where the mobile bar only shows a dot.
  */
 export function Sidebar() {
   const logout = useLogout()
+  const { count: unread } = useUnreadCount()
 
   return (
     <aside
@@ -36,11 +41,16 @@ export function Sidebar() {
       <nav className="mt-8 flex flex-col gap-1">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon
+          const showBadge = item.key === 'messages' && unread > 0
           return (
             <Link
               key={item.to}
               to={item.to}
-              aria-label={item.ariaLabel}
+              aria-label={
+                showBadge
+                  ? `${item.ariaLabel}, ${unread} unread`
+                  : item.ariaLabel
+              }
               className="flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-[14px] font-semibold text-[color:var(--text-secondary)] transition-colors hover:bg-[color:var(--bg-surface-muted)]"
               activeProps={{
                 className:
@@ -48,7 +58,15 @@ export function Sidebar() {
               }}
             >
               <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
-              <span>{item.label}</span>
+              <span className="flex-1">{item.label}</span>
+              {showBadge && (
+                <span
+                  className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[color:var(--red)] px-1.5 text-[11px] font-bold leading-none text-white"
+                  aria-hidden
+                >
+                  {unread > 99 ? '99+' : unread}
+                </span>
+              )}
             </Link>
           )
         })}

@@ -14,9 +14,9 @@ import { z } from 'zod'
  *   - energy_score / mood_score: required, 1-10 (sliders).
  *   - sleep_hrs: optional, 0-24.
  *   - notes: optional, max 10000 chars (the backend cap).
- *
- * Photos (photo_urls, max 4) are deferred to T9 (progress timeline) when
- * the upload UX lands. The submit body just omits them in v1.
+ *   - photo_urls: optional, max 4 (the backend cap, mirrors uploads.go).
+ *     URLs come from the PhotoUpload field, which uploads each file via
+ *     POST /api/v1/portal/uploads/photo and stashes the returned URL here.
  *
  * Client validation is intentionally minimal — the backend is the ground
  * truth on ranges. We only catch typos the user would obviously not want
@@ -49,6 +49,10 @@ export const checkInSubmitSchema = z.object({
   notes: z
     .string()
     .max(10_000, 'Notes are capped at 10,000 characters.')
+    .optional(),
+  photo_urls: z
+    .array(z.url())
+    .max(4, 'Max 4 photos per check-in.')
     .optional(),
 })
 

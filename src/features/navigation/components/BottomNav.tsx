@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 
 import { NAV_ITEMS } from '@/features/navigation/nav-items'
+import { useUnreadCount } from '@/features/notifications/hooks/useUnreadCount'
 
 /*
  * BottomNav — mobile-only (<md). Fixed to the bottom of the viewport.
@@ -15,10 +16,13 @@ import { NAV_ITEMS } from '@/features/navigation/nav-items'
  * per Apple HIG) — height is 78px including the safe-area gutter handled
  * in `_app.tsx`.
  *
- * Notification dots (e.g. unread messages from T8) live here as a per-item
- * red dot on the icon. Currently inert — turned on once the WS hook lands.
+ * The Messages tab shows a small red dot when unread > 0 (T8). The count
+ * itself isn't shown on mobile — the dot is the nudge, the number lives on
+ * the bell + the /messages page.
  */
 export function BottomNav() {
+  const { count: unread } = useUnreadCount()
+
   return (
     <nav
       aria-label="Primary"
@@ -26,18 +30,31 @@ export function BottomNav() {
     >
       {NAV_ITEMS.map((item) => {
         const Icon = item.icon
+        const showBadge = item.key === 'messages' && unread > 0
         return (
           <Link
             key={item.to}
             to={item.to}
-            aria-label={item.ariaLabel}
+            aria-label={
+              showBadge
+                ? `${item.ariaLabel}, ${unread} unread`
+                : item.ariaLabel
+            }
             className="flex flex-1 flex-col items-center justify-center gap-1 px-2 text-[color:var(--text-muted)] transition-colors"
             activeProps={{
               className:
                 'flex flex-1 flex-col items-center justify-center gap-1 px-2 text-[color:var(--green-brand)] transition-colors',
             }}
           >
-            <Icon className="h-[22px] w-[22px]" strokeWidth={2} />
+            <span className="relative">
+              <Icon className="h-[22px] w-[22px]" strokeWidth={2} />
+              {showBadge && (
+                <span
+                  aria-hidden
+                  className="absolute -top-0.5 -right-1 block h-[9px] w-[9px] rounded-full border-2 border-card bg-[color:var(--red)]"
+                />
+              )}
+            </span>
             <span className="text-[11px] font-semibold tracking-[0.01em]">
               {item.label}
             </span>
