@@ -80,6 +80,33 @@
 }
 
 /*
+ * Keyframes for the celebration sheet (Decision 4A — streak scale-up + flame
+ * burst on check-in submit success). All ~1.2s feel total; the sheet itself
+ * auto-dismisses after ~1500ms in CelebrationSheet.tsx.
+ */
+@keyframes streak-pop {
+  0%   { transform: scale(0.7); opacity: 0; }
+  60%  { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes flame-glow {
+  0%   { transform: scale(0.85); filter: drop-shadow(0 0 0 transparent); }
+  50%  { transform: scale(1.15); filter: drop-shadow(0 4px 16px rgba(255, 138, 61, 0.65)); }
+  100% { transform: scale(1);    filter: drop-shadow(0 3px 12px rgba(255, 90, 61, 0.45)); }
+}
+
+@keyframes sheet-rise {
+  0%   { transform: translateY(24px); opacity: 0; }
+  100% { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes backdrop-fade {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/*
  * Dark mode overrides (Decision 8A — wired but NOT toggled in v1).
  * The .dark class swap lives here so adding a v1.1 toggle is CSS-only,
  * not a refactor. Brand palette stays intact; only semantic tokens move.

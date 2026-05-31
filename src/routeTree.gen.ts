@@ -14,6 +14,8 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthAcceptInviteRouteImport } from './routes/_auth/accept-invite'
+import { Route as AppProgressRouteImport } from './routes/_app/progress'
+import { Route as AppMessagesRouteImport } from './routes/_app/messages'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppCheckInRouteImport } from './routes/_app/check-in'
 
@@ -40,6 +42,16 @@ const AuthAcceptInviteRoute = AuthAcceptInviteRouteImport.update({
   path: '/accept-invite',
   getParentRoute: () => AuthRoute,
 } as any)
+const AppProgressRoute = AppProgressRouteImport.update({
+  id: '/progress',
+  path: '/progress',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMessagesRoute = AppMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -55,6 +67,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/check-in': typeof AppCheckInRoute
   '/dashboard': typeof AppDashboardRoute
+  '/messages': typeof AppMessagesRoute
+  '/progress': typeof AppProgressRoute
   '/accept-invite': typeof AuthAcceptInviteRoute
   '/login': typeof AuthLoginRoute
 }
@@ -62,6 +76,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/check-in': typeof AppCheckInRoute
   '/dashboard': typeof AppDashboardRoute
+  '/messages': typeof AppMessagesRoute
+  '/progress': typeof AppProgressRoute
   '/accept-invite': typeof AuthAcceptInviteRoute
   '/login': typeof AuthLoginRoute
 }
@@ -72,14 +88,30 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteWithChildren
   '/_app/check-in': typeof AppCheckInRoute
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/messages': typeof AppMessagesRoute
+  '/_app/progress': typeof AppProgressRoute
   '/_auth/accept-invite': typeof AuthAcceptInviteRoute
   '/_auth/login': typeof AuthLoginRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/check-in' | '/dashboard' | '/accept-invite' | '/login'
+  fullPaths:
+    | '/'
+    | '/check-in'
+    | '/dashboard'
+    | '/messages'
+    | '/progress'
+    | '/accept-invite'
+    | '/login'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/check-in' | '/dashboard' | '/accept-invite' | '/login'
+  to:
+    | '/'
+    | '/check-in'
+    | '/dashboard'
+    | '/messages'
+    | '/progress'
+    | '/accept-invite'
+    | '/login'
   id:
     | '__root__'
     | '/'
@@ -87,6 +119,8 @@ export interface FileRouteTypes {
     | '/_auth'
     | '/_app/check-in'
     | '/_app/dashboard'
+    | '/_app/messages'
+    | '/_app/progress'
     | '/_auth/accept-invite'
     | '/_auth/login'
   fileRoutesById: FileRoutesById
@@ -134,6 +168,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthAcceptInviteRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_app/progress': {
+      id: '/_app/progress'
+      path: '/progress'
+      fullPath: '/progress'
+      preLoaderRoute: typeof AppProgressRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/messages': {
+      id: '/_app/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof AppMessagesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/dashboard': {
       id: '/_app/dashboard'
       path: '/dashboard'
@@ -154,11 +202,15 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppCheckInRoute: typeof AppCheckInRoute
   AppDashboardRoute: typeof AppDashboardRoute
+  AppMessagesRoute: typeof AppMessagesRoute
+  AppProgressRoute: typeof AppProgressRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppCheckInRoute: AppCheckInRoute,
   AppDashboardRoute: AppDashboardRoute,
+  AppMessagesRoute: AppMessagesRoute,
+  AppProgressRoute: AppProgressRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

@@ -1,13 +1,15 @@
 import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
 
+import { BottomNav } from '@/features/navigation/components/BottomNav'
+import { Sidebar } from '@/features/navigation/components/Sidebar'
 import { useTokensStore } from '@/stores/tokens'
 
 /*
  * `_app` layout — wraps every gated (authenticated) page.
  *
  * v1 responsive pattern (Decision 9D):
- *   - mobile (<768px): content single-column, bottom nav fixed.
- *   - desktop (>=768px): left sidebar nav, content column capped ~640px.
+ *   - mobile (<md): single column, bottom nav fixed.
+ *   - desktop (md+): left sidebar nav, content column capped ~640px.
  *
  * Auth gate (Decision 1A + 5A): `beforeLoad` checks the Zustand tokens store
  * synchronously. The check uses `refreshToken` (not access — access is short
@@ -18,6 +20,9 @@ import { useTokensStore } from '@/stores/tokens'
  * Why read the store here instead of router context: the store is the single
  * source of truth, and a context-threaded copy would go stale across
  * login/logout. `getState()` is synchronous and cheap.
+ *
+ * Nav lives in `features/navigation/` — both `Sidebar` (md+) and `BottomNav`
+ * (<md) render from the same NAV_ITEMS registry.
  */
 export const Route = createFileRoute('/_app')({
   beforeLoad: ({ location }) => {
@@ -34,33 +39,22 @@ export const Route = createFileRoute('/_app')({
 function AppLayout() {
   return (
     <div className="min-h-dvh bg-background">
-      {/* Desktop sidebar (md+); hidden on mobile */}
-      <aside className="hidden md:flex md:fixed md:inset-y-0 md:left-0 md:w-60 md:flex-col md:border-r md:border-border md:bg-card md:px-4 md:py-6">
-        <div className="text-[18px] font-extrabold tracking-tight text-foreground">
-          FitCoach
-        </div>
-        <nav className="mt-8 flex flex-col gap-1">
-          {/* Nav items render here in Task T10 (responsive sidebar) */}
-          <span className="text-[12px] uppercase tracking-wider text-muted-foreground">
-            Nav placeholder
-          </span>
-        </nav>
-      </aside>
+      <Sidebar />
 
-      {/* Content column (mobile + desktop) */}
-      <main className="mx-auto w-full max-w-[640px] md:pl-60 pb-24 md:pb-10">
-        <div className="px-5 py-6">
+      {/*
+       * Content column. `md:pl-60` on the outer main reserves space for the
+       * fixed sidebar; the inner div handles the centered, capped reading
+       * column. `pb-24` keeps the mobile bottom-nav from covering the last
+       * row (78px nav + breathing room; the iPhone home indicator is handled
+       * by env(safe-area-inset-bottom) inside BottomNav itself).
+       */}
+      <main className="pb-24 md:pb-10 md:pl-60">
+        <div className="mx-auto w-full max-w-[640px] px-5 py-6">
           <Outlet />
         </div>
       </main>
 
-      {/* Mobile bottom nav (hidden on md+) */}
-      <nav className="md:hidden fixed inset-x-0 bottom-0 h-[78px] border-t border-border bg-card flex items-center justify-around px-2 pb-4">
-        {/* Nav items render here in Task T10 */}
-        <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
-          Bottom nav placeholder
-        </span>
-      </nav>
+      <BottomNav />
     </div>
   )
 }

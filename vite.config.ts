@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import path from 'node:path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
@@ -17,6 +18,9 @@ import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
  *
  * Path alias: `@/*` → `src/*` so feature folders can import via short paths
  * (e.g. `import { api } from '@/lib/api'`).
+ *
+ * Vitest config lives in the `test` block below — pinned by /plan-eng-review
+ * Decision 8A (Vitest + RTL + Playwright + msw with 100% on critical paths).
  */
 export default defineConfig({
   plugins: [
@@ -41,6 +45,32 @@ export default defineConfig({
         target: 'http://localhost:8080',
         changeOrigin: true,
       },
+    },
+  },
+  test: {
+    // jsdom for component tests; pure utilities work fine here too.
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: ['./src/test/setup.ts'],
+    // Restore mocks/stubs between tests so state doesn't leak.
+    restoreMocks: true,
+    css: false,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html', 'lcov'],
+      // Auto-generated SDK + the route tree are not worth covering.
+      exclude: [
+        'src/routeTree.gen.ts',
+        'src/lib/api/generated/**',
+        'src/test/**',
+        '**/*.config.ts',
+        '**/*.d.ts',
+        'dist/**',
+        'src/main.tsx',
+      ],
+      // Per /plan-eng-review Decision 8A, the spine paths (auth interceptor,
+      // streak derive, check-in submit, WS hook) target 100%. We don't enforce
+      // global thresholds yet — let coverage build organically.
     },
   },
 })
