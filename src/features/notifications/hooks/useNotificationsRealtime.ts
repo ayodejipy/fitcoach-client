@@ -8,6 +8,7 @@ import {
   portalUnreadNotificationCountQueryKey,
 } from '@/lib/api/generated/@tanstack/react-query.gen'
 import type { ModelsNotification } from '@/lib/api/generated/types.gen'
+import { pickStringFromNotificationData } from '@/features/notifications/utils/pick-notification-data'
 import { usePortalWs } from '@/lib/ws/use-portal-ws'
 import { useTokensStore } from '@/stores/tokens'
 
@@ -92,22 +93,24 @@ interface FriendlyCopy {
   description?: string
 }
 
-function friendlyCopyFor(n: ModelsNotification): FriendlyCopy | null {
-  const data = n.data ?? {}
-  const coach = pickString(data, 'coach_name') ?? 'Your coach'
+function friendlyCopyFor(notification: ModelsNotification): FriendlyCopy | null {
+  const data = notification.data ?? {}
+  const coachName =
+    pickStringFromNotificationData(data, 'coach_name') ?? 'Your coach'
 
-  switch (n.type) {
+  switch (notification.type) {
     case 'coach_reply':
     case 'coach_message':
       return {
-        title: `${coach} replied`,
-        description: pickString(data, 'preview'),
+        title: `${coachName} replied`,
+        description: pickStringFromNotificationData(data, 'preview'),
       }
     case 'session_reminder':
       return {
         title: 'Session reminder',
         description:
-          pickString(data, 'preview') ?? 'You have a session coming up.',
+          pickStringFromNotificationData(data, 'preview') ??
+          'You have a session coming up.',
       }
     default:
       // Unknown type — keep it quiet rather than show a confusing generic
@@ -115,12 +118,4 @@ function friendlyCopyFor(n: ModelsNotification): FriendlyCopy | null {
       // so the user can still discover it in /messages.
       return null
   }
-}
-
-function pickString(
-  obj: Record<string, unknown>,
-  key: string,
-): string | undefined {
-  const v = obj[key]
-  return typeof v === 'string' ? v : undefined
 }
