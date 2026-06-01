@@ -25,31 +25,39 @@ interface Props {
 
 export function TrendsSection({ data }: Props) {
   return (
-    <div className="space-y-3">
-      <TrendCard
-        title="Weight"
-        subtitle="lbs"
-        stroke="var(--green-brand)"
-        data={data.weightSeries}
-        valueSuffix=" lbs"
-        formatValue={(n) => n.toFixed(1)}
-      />
-      <TrendCard
-        title="Energy"
-        subtitle="1–10"
-        stroke="var(--fire-2)"
-        data={data.energySeries}
-        yDomain={[1, 10]}
-        valueSuffix=" / 10"
-      />
-      <TrendCard
-        title="Mood"
-        subtitle="1–10"
-        stroke="var(--green-mid)"
-        data={data.moodSeries}
-        yDomain={[1, 10]}
-        valueSuffix=" / 10"
-      />
-    </div>
+    <section className="space-y-4">
+      <h2
+        className="font-display text-[24px] lg:text-[28px] font-normal leading-tight tracking-tight text-foreground"
+        style={{ fontVariationSettings: "'opsz' 30, 'SOFT' 50" }}
+      >
+        Trends
+      </h2>
+      <div className="space-y-4">
+        <TrendCard
+          title="Weight"
+          subtitle="lbs"
+          stroke="var(--green-brand)"
+          data={data.weightSeries}
+          valueSuffix=" lbs"
+          formatValue={(value) => value.toFixed(1)}
+        />
+        <TrendCard
+          title="Energy"
+          subtitle="1–10"
+          stroke="var(--fire-2)"
+          data={data.energySeries}
+          yDomain={[1, 10]}
+          valueSuffix=" / 10"
+        />
+        <TrendCard
+          title="Mood"
+          subtitle="1–10"
+          stroke="var(--green-mid)"
+          data={data.moodSeries}
+          yDomain={[1, 10]}
+          valueSuffix=" / 10"
+        />
+      </div>
+    </section>
   )
 }

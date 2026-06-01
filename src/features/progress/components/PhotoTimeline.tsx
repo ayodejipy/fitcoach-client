@@ -7,9 +7,11 @@ import type { PhotoEntry } from '@/features/progress/hooks/useProgressData'
  * snap to next photo) and on desktop (trackpad swipe / arrow keys / scrollbar).
  * No library, no JS gesture tracking — the platform already does it.
  *
- * Photo size: 220px square thumbnails fit ~1.5 on a 360px viewport so the
- * user always sees an edge of the next photo, signaling "swipe for more".
- * On desktop the same width reads as a clean gallery row.
+ * Photo size: 220px square thumbnails on mobile (fits ~1.5 on a 360px
+ * viewport so the user always sees an edge of the next photo, signaling
+ * "swipe for more"). Desktop bumps to 320px — the progress page is the
+ * "show your transformation" surface and the bigger thumbnails carry more
+ * weight against the chart cards below.
  *
  * Lazy-loading images keeps the scroll smooth and the initial paint cheap —
  * an active client could have 50+ photos at year's end.
@@ -28,30 +30,30 @@ export function PhotoTimeline({ photos }: Props) {
     <div
       role="region"
       aria-label="Progress photo timeline"
-      className="-mx-5 overflow-x-auto"
+      className="-mx-5 overflow-x-auto lg:-mx-10"
       style={{
         scrollSnapType: 'x mandatory',
         WebkitOverflowScrolling: 'touch',
       }}
     >
-      <ul className="flex gap-3 px-5 pb-1">
-        {photos.map((photo, idx) => (
+      <ul className="flex gap-3 px-5 pb-1 lg:gap-4 lg:px-10">
+        {photos.map((photo, index) => (
           <li
-            key={`${photo.url}-${idx}`}
+            key={`${photo.url}-${index}`}
             className="shrink-0"
             style={{ scrollSnapAlign: 'start' }}
           >
-            <figure className="flex flex-col gap-1.5">
-              <div className="overflow-hidden rounded-[14px] border border-border bg-[color:var(--bg-surface-muted)]">
+            <figure className="flex flex-col gap-2">
+              <div className="overflow-hidden rounded-[16px] border border-border bg-[color:var(--bg-surface-muted)]">
                 <img
                   src={photo.url}
                   alt={`Progress photo from week of ${photo.weekStartDate}`}
                   loading="lazy"
                   decoding="async"
-                  className="block h-[220px] w-[220px] object-cover"
+                  className="block h-[220px] w-[220px] object-cover lg:h-[320px] lg:w-[320px]"
                 />
               </div>
-              <figcaption className="text-[12px] font-semibold text-[color:var(--text-secondary)]">
+              <figcaption className="text-[12.5px] font-semibold text-[color:var(--text-secondary)]">
                 {photo.label}
               </figcaption>
             </figure>

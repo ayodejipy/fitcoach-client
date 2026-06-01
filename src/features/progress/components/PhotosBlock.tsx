@@ -19,8 +19,11 @@ interface Props {
 
 export function PhotosBlock({ photos }: Props) {
   return (
-    <section className="space-y-3">
-      <h2 className="text-[14px] font-bold tracking-tight text-foreground">
+    <section className="space-y-4">
+      <h2
+        className="font-display text-[24px] lg:text-[28px] font-normal leading-tight tracking-tight text-foreground"
+        style={{ fontVariationSettings: "'opsz' 30, 'SOFT' 50" }}
+      >
         Photos
       </h2>
       {photos.length > 0 ? (
