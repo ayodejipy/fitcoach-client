@@ -1,25 +1,8 @@
 import { Link } from '@tanstack/react-router'
 import { CheckCircle2 } from 'lucide-react'
 
+import { BrandSurface } from '@/components/ui/BrandSurface'
 import { Button } from '@/components/ui/button'
-
-/*
- * ThisWeekCard — the "this week" CTA or submitted-state.
- *
- * Two states (driven by the `submitted` prop the dashboard passes from
- * `useStreak().hasSubmittedThisWeek`):
- *
- *   - !submitted: soft-mint gradient card with eyebrow "This week",
- *     "Due Sunday" pill, headline "Submit your Week N check-in",
- *     supporting line, brand-green CTA → /check-in.
- *
- *   - submitted: same surface but with a quiet "Check-in submitted"
- *     confirmation and the coach-review status (Decision 4A's calmer
- *     post-submit state, before the celebration animation lands).
- *
- * The week number shown is either the program week (from /me) or just
- * "this week" if the program info isn't loaded yet.
- */
 
 interface Props {
   submitted: boolean
@@ -32,43 +15,49 @@ export function ThisWeekCard({ submitted, programWeek, coachName }: Props) {
 
   if (submitted) {
     return (
-      <div
-        className="rounded-[14px] border border-[color:var(--green-soft)] bg-gradient-to-b from-[color:var(--green-pale)] to-card p-5 shadow-[var(--shadow-card)]"
-        role="status"
-      >
+      <BrandSurface tone="mint" padding="md" role="status">
         <div className="mb-2 flex items-center justify-between">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
+          <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[color:var(--green-brand)]">
             This week
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-card px-2.5 py-1 text-[11.5px] font-semibold text-[color:var(--green-brand)] ring-1 ring-[color:var(--green-soft)]">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[11.5px] font-bold tracking-[0.04em] uppercase text-[color:var(--green-brand)] ring-1 ring-[color:var(--green-soft)]">
             <CheckCircle2 className="h-[14px] w-[14px]" strokeWidth={2.5} />
             Submitted
           </span>
         </div>
-        <h3 className="text-[17px] font-bold tracking-tight text-foreground">
-          {weekLabel} check-in is locked in
+        <h3
+          className="font-display text-[20px] lg:text-[22px] leading-[1.2] tracking-[-0.01em] text-foreground"
+          style={{ fontVariationSettings: "'opsz' 26, 'SOFT' 50" }}
+        >
+          {weekLabel} check-in is locked in.
         </h3>
-        <p className="mt-1 text-[13.5px] text-[color:var(--text-secondary)]">
-          {coachName ? `${coachName} will reply within a day.` : 'Your coach will reply within a day.'}
+        <p className="mt-1.5 text-[13.5px] text-[color:var(--text-secondary)]">
+          {coachName
+            ? `${coachName} will reply within a day.`
+            : 'Your coach will reply within a day.'}
         </p>
-      </div>
+      </BrandSurface>
     )
   }
 
   return (
-    <div className="rounded-[14px] border border-[color:var(--green-soft)] bg-gradient-to-b from-[color:var(--green-pale)] to-card p-5 shadow-[var(--shadow-card)]">
+    <BrandSurface tone="mint" padding="md">
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[color:var(--text-muted)]">
+        <span className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[color:var(--green-brand)]">
           This week
         </span>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--green-pale)] px-2.5 py-1 text-[11.5px] font-semibold text-[color:var(--green-brand)] before:inline-block before:h-[6px] before:w-[6px] before:rounded-full before:bg-[color:var(--green-mid)] before:content-['']">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[11.5px] font-bold tracking-[0.04em] uppercase text-[color:var(--green-brand)] ring-1 ring-[color:var(--green-soft)]">
+          <span className="h-[6px] w-[6px] rounded-full bg-[color:var(--green-mid)]" aria-hidden />
           Due Sunday
         </span>
       </div>
-      <h3 className="text-[17px] font-bold tracking-tight text-foreground">
-        Submit your {weekLabel} check-in
+      <h3
+        className="font-display text-[20px] lg:text-[22px] leading-[1.2] tracking-[-0.01em] text-foreground"
+        style={{ fontVariationSettings: "'opsz' 26, 'SOFT' 50" }}
+      >
+        Submit your {weekLabel} check-in.
       </h3>
-      <p className="mt-1 text-[13.5px] text-[color:var(--text-secondary)]">
+      <p className="mt-1.5 text-[13.5px] text-[color:var(--text-secondary)]">
         Weight, energy, mood, sleep, notes. Takes 90 seconds.
       </p>
       <Button
@@ -78,6 +67,6 @@ export function ThisWeekCard({ submitted, programWeek, coachName }: Props) {
       >
         <Link to="/check-in">Start check-in →</Link>
       </Button>
-    </div>
+    </BrandSurface>
   )
 }

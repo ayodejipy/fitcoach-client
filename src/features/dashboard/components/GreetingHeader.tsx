@@ -1,19 +1,8 @@
+import { format } from 'date-fns'
 import { Bell } from 'lucide-react'
 
-/*
- * GreetingHeader — top of dashboard.
- *
- * Time-of-day greeting + coach mini-profile + (placeholder) notifications bell.
- * Reads ONLY what it renders — props are first_name, coach_name, program_week,
- * program_total. The dashboard route passes these from `useMe()`.
- *
- * The greeting is intentionally time-of-day (not just "Welcome, X") because
- * coaches notice when an app feels like it's talking to them, not at them.
- *
- * Notifications bell is rendered as a placeholder dot for now; the actual
- * unread-count wiring lands with Task T8 (websocket nudge) — once the WS
- * hook exists, the dot reflects real `portal/notifications/unread-count`.
- */
+import { initials } from '@/features/profile/utils/initials'
+
 
 interface Props {
   firstName: string | null | undefined
@@ -24,20 +13,13 @@ interface Props {
   hasUnread?: boolean
 }
 
-function timeOfDayGreeting(d: Date = new Date()): string {
-  const h = d.getHours()
-  if (h < 5) return 'Late night'
-  if (h < 12) return 'Good morning'
-  if (h < 17) return 'Good afternoon'
-  if (h < 21) return 'Good evening'
-  return 'Quiet night'
-}
-
-function initials(name: string | null | undefined): string {
-  if (!name) return '?'
-  const parts = name.trim().split(/\s+/)
-  if (parts.length === 1) return parts[0]!.charAt(0).toUpperCase()
-  return (parts[0]!.charAt(0) + parts[parts.length - 1]!.charAt(0)).toUpperCase()
+function timeOfDayGreeting(date: Date = new Date()): string {
+  const hour = date.getHours()
+  if (hour < 5) return 'Late night'
+  if (hour < 12) return 'Good morning'
+  if (hour < 17) return 'Good afternoon'
+  if (hour < 21) return 'Good evening'
+  return 'Good night'
 }
 
 export function GreetingHeader({
@@ -52,16 +34,38 @@ export function GreetingHeader({
     programWeek && programTotal
       ? `Week ${programWeek} of ${programTotal}`
       : null
+  const todayEyebrow = format(new Date(), 'EEE · MMM d').toUpperCase()
 
   return (
     <header className="flex items-start justify-between gap-4">
       <div>
-        <h1 className="text-[22px] font-extrabold leading-tight tracking-tight text-foreground">
+        <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[color:var(--text-muted)]">
+          {todayEyebrow}
+        </div>
+        <h1
+          className="mt-2 font-display text-[34px] lg:text-[38px] font-light leading-[1.05] tracking-[-0.015em] text-foreground"
+          style={{ fontVariationSettings: "'opsz' 100, 'SOFT' 40" }}
+        >
           {greeting}
-          {firstName ? `, ${firstName}.` : '.'}
+          {firstName ? (
+            <>
+              ,{' '}
+              <em
+                className="not-italic"
+                style={{
+                  fontVariationSettings: "'opsz' 108, 'SOFT' 80",
+                  fontWeight: 400,
+                }}
+              >
+                {firstName}.
+              </em>
+            </>
+          ) : (
+            '.'
+          )}
         </h1>
         {(coachName || programLine) && (
-          <div className="mt-1 flex items-center gap-2 text-[13px] text-[color:var(--text-secondary)]">
+          <div className="mt-2 flex items-center gap-2 text-[13px] text-[color:var(--text-secondary)]">
             {coachName && (
               <>
                 <span
