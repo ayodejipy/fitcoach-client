@@ -56,7 +56,33 @@
   --radius-2xl:  22px;
 
   --font-sans:    'Inter', system-ui, -apple-system, sans-serif;
-  --font-display: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+
+  /*
+   * Display typography scale — for Fraunces headline moments (login, dashboard
+   * greeting, progress hero, page headers). Each size pairs an opsz + line
+   * height tuned for that scale. Use `text-display-xl` etc. as Tailwind utilities.
+   * Pinned by Decision D3 (May 2026 redesign).
+   */
+  --text-display-xl: 56px;
+  --text-display-xl--line-height: 1.05;
+  --text-display-lg: 40px;
+  --text-display-lg--line-height: 1.10;
+  --text-display-md: 28px;
+  --text-display-md--line-height: 1.15;
+  --text-display-sm: 20px;
+  --text-display-sm--line-height: 1.25;
+}
+
+/*
+ * .font-display — Fraunces utility with stylistic-set 01 enabled (slightly
+ * more characterful variant of certain glyphs — particularly the lowercase
+ * `g` and `a`). Use alongside font-variation-settings on individual elements
+ * to dial in opsz + SOFT for the warm-wonky headline voice.
+ */
+.font-display {
+  font-family: var(--font-display);
+  font-feature-settings: 'ss01' 1;
 }
 
 /* ── Global base styles ─────────────────────────────────────── */

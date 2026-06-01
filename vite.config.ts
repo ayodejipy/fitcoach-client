@@ -5,23 +5,6 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 
-/**
- * Vite config for fitcoach-client (the FitCoach client portal SPA).
- *
- * Plugins:
- *   1. TanStackRouterVite — generates `src/routeTree.gen.ts` from the
- *      file-based routes in `src/routes/`. MUST come before `react()`.
- *   2. react — React 19 + Fast Refresh.
- *   3. tailwindcss — Tailwind v4 Vite plugin (no postcss config needed).
- *
- * No vite-plugin-pwa — PWA layer deferred to v1.1 (Decision S1).
- *
- * Path alias: `@/*` → `src/*` so feature folders can import via short paths
- * (e.g. `import { api } from '@/lib/api'`).
- *
- * Vitest config lives in the `test` block below — pinned by /plan-eng-review
- * Decision 8A (Vitest + RTL + Playwright + msw with 100% on critical paths).
- */
 export default defineConfig({
   plugins: [
     TanStackRouterVite({
@@ -60,6 +43,9 @@ export default defineConfig({
     // Restore mocks/stubs between tests so state doesn't leak.
     restoreMocks: true,
     css: false,
+    // Playwright owns the e2e/ folder; keep its specs out of Vitest's
+    // discovery so a `pnpm test` run doesn't try to execute them as units.
+    exclude: ['node_modules/**', 'dist/**', 'e2e/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],

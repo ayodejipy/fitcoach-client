@@ -13,7 +13,9 @@
     "openapi:sync": "pnpm openapi:pull && pnpm openapi:gen",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
@@ -41,6 +43,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@hey-api/openapi-ts": "^0.97.3",
+    "@playwright/test": "^1.60.0",
     "@tanstack/react-query-devtools": "^5.100.14",
     "@tanstack/react-router-devtools": "^1.167.0",
     "@tanstack/router-plugin": "^1.168.11",
