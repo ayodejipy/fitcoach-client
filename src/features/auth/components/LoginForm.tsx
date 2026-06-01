@@ -17,17 +17,6 @@ import {
 } from '@/features/auth/schemas/login'
 import { useLogin } from '@/features/auth/hooks/useLogin'
 
-/*
- * LoginForm — pure UI.
- *
- * No async logic in here. `useLogin` owns the mutation, token hydration,
- * navigation, and inline-vs-toast error split. This component just wires
- * RHF + Zod → render fields → on submit, hand values + the inline-error
- * callback to the hook.
- *
- * Pattern lives in MEMORY.md / feedback_async_in_hooks: components are pure
- * UI; async lives in `features/<domain>/hooks/use<Action>.ts`.
- */
 export function LoginForm() {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -50,15 +39,20 @@ export function LoginForm() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="rounded-2xl border border-border bg-card p-6 shadow-[var(--shadow-card)]"
         noValidate
+        className="w-full max-w-[380px]"
       >
-        <h1 className="text-[20px] font-bold tracking-tight text-foreground">
-          Welcome back
-        </h1>
-        <p className="mt-1 mb-6 text-[13.5px] text-muted-foreground">
-          Sign in to check in with your coach.
-        </p>
+        <header className="mb-8">
+          <h1
+            className="font-display text-[32px] leading-[1.1] tracking-[-0.01em] text-foreground"
+            style={{ fontVariationSettings: "'opsz' 72, 'SOFT' 40" }}
+          >
+            Welcome back.
+          </h1>
+          <p className="mt-2 text-[14px] text-muted-foreground">
+            Sign in to check in with your coach.
+          </p>
+        </header>
 
         <FormField
           control={form.control}
@@ -111,6 +105,16 @@ export function LoginForm() {
         >
           {isPending ? 'Signing in…' : 'Sign in'}
         </Button>
+
+        <p className="mt-7 text-center text-[13px] text-muted-foreground">
+          New to FitCoach?{' '}
+          <a
+            href="#"
+            className="font-semibold text-[color:var(--green-brand)] hover:underline"
+          >
+            Talk to your coach →
+          </a>
+        </p>
       </form>
     </Form>
   )

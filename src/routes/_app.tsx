@@ -3,14 +3,20 @@ import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
 import { BottomNav } from '@/features/navigation/components/BottomNav'
 import { Sidebar } from '@/features/navigation/components/Sidebar'
 import { useNotificationsRealtime } from '@/features/notifications/hooks/useNotificationsRealtime'
+import { MobileProfileMenu } from '@/features/profile/components/MobileProfileMenu'
 import { useTokensStore } from '@/stores/tokens'
 
 /*
  * `_app` layout — wraps every gated (authenticated) page.
  *
- * v1 responsive pattern (Decision 9D):
- *   - mobile (<md): single column, bottom nav fixed.
- *   - desktop (md+): left sidebar nav, content column capped ~640px.
+ * Responsive pattern (post-redesign):
+ *   - mobile + tablet (<lg, i.e. <1024px): single column, bottom nav fixed.
+ *   - desktop (lg+): left sidebar nav, content max-width per route via PageShell.
+ *
+ * Why lg (not md) as the desktop breakpoint: at md (768px) the 65/35 login
+ * split-screen squeezes form inputs below ~190px, and the dashboard 2-col grid
+ * cards become uncomfortably narrow. iPad portrait now gets the mobile
+ * layout, which is the better fit for that form factor.
  *
  * Auth gate (Decision 1A + 5A): `beforeLoad` checks the Zustand tokens store
  * synchronously. The check uses `refreshToken` (not access — access is short
@@ -22,8 +28,9 @@ import { useTokensStore } from '@/stores/tokens'
  * source of truth, and a context-threaded copy would go stale across
  * login/logout. `getState()` is synchronous and cheap.
  *
- * Nav lives in `features/navigation/` — both `Sidebar` (md+) and `BottomNav`
- * (<md) render from the same NAV_ITEMS registry.
+ * Max-width per route: each route component wraps its content in
+ * `<PageShell size="...">` to pick its own max-width (narrow 720 / medium
+ * 1040 / wide 1120). _app.tsx no longer applies a global max-width.
  */
 export const Route = createFileRoute('/_app')({
   beforeLoad: ({ location }) => {
@@ -48,19 +55,19 @@ function AppLayout() {
       <Sidebar />
 
       {/*
-       * Content column. `md:pl-60` on the outer main reserves space for the
-       * fixed sidebar; the inner div handles the centered, capped reading
-       * column. `pb-24` keeps the mobile bottom-nav from covering the last
+       * Content column. `lg:pl-60` reserves space for the fixed sidebar at
+       * desktop. `pb-24` keeps the mobile bottom-nav from covering the last
        * row (78px nav + breathing room; the iPhone home indicator is handled
        * by env(safe-area-inset-bottom) inside BottomNav itself).
+       *
+       * Per-route max-width comes from each route's `<PageShell>` wrapper.
        */}
-      <main className="pb-24 md:pb-10 md:pl-60">
-        <div className="mx-auto w-full max-w-[640px] px-5 py-6">
-          <Outlet />
-        </div>
+      <main className="pb-24 lg:pb-10 lg:pl-60">
+        <Outlet />
       </main>
 
       <BottomNav />
+      <MobileProfileMenu />
     </div>
   )
 }

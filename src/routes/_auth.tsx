@@ -1,12 +1,17 @@
 import { Outlet, createFileRoute } from '@tanstack/react-router'
 
 /*
- * `_auth` layout — wraps all public pages (login, accept-invite).
+ * `_auth` layout — wraps the public auth pages (login, accept-invite).
  *
- * Centered single-column layout, mobile-first, branded greeting card.
- * Width caps at the mobile design (Decision 9D — same column width
- * across viewports for these auth pages; sidebar lives only behind the
- * `_app` gate).
+ * Thin pass-through after the May 2026 redesign. Each auth route owns its
+ * own layout:
+ *   - /login → renders `<HeroSplit>` (full viewport split-screen)
+ *   - /accept-invite → renders its own centered wordmark + form shell
+ *
+ * Why no shared shell anymore: the locked Login direction (Variant A,
+ * photographic editorial 65/35) needs full viewport control to render
+ * the hero photograph + cream form column. A shared centered wrapper
+ * would break it.
  */
 export const Route = createFileRoute('/_auth')({
   component: AuthLayout,
@@ -14,18 +19,8 @@ export const Route = createFileRoute('/_auth')({
 
 function AuthLayout() {
   return (
-    <div className="min-h-dvh bg-background flex flex-col items-center justify-center px-5 py-10">
-      <div className="w-full max-w-[420px]">
-        <header className="mb-8 text-center">
-          <div className="text-[22px] font-extrabold tracking-tight text-foreground">
-            FitCoach
-          </div>
-          <p className="mt-1 text-[13px] text-muted-foreground">
-            Your weekly check-in, with your coach.
-          </p>
-        </header>
-        <Outlet />
-      </div>
+    <div className="min-h-dvh bg-background">
+      <Outlet />
     </div>
   )
 }
