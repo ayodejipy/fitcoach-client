@@ -23,6 +23,18 @@
   --green-muted:  rgba(46, 204, 113, .12);
   --red:          #EF4444;
 
+  /* Cream surface — warm paper-tone used for the login form panel (May 2026
+   * redesign, Decision D6). Sits between pure white and beige; reads "premium
+   * publication" not "clinical SaaS." Paired with --border-warm for inputs. */
+  --cream:        #FAF7F0;
+  --cream-soft:   #F2EDE0;
+  --border-warm:  #E8E1D0;
+
+  /* Unread-message tint — used as the surface background for unread coach-reply
+   * cards in /messages. Whisper-quiet green wash, signals "not yet read"
+   * without shouting. */
+  --bg-unread:    #F4FAF6;
+
   /* ── Semantic tokens: text ── */
   --text-primary:   #1A2E1F;
   --text-secondary: #4A6B54;
@@ -62,8 +74,14 @@
   --t-base: 200ms;
   --t-slow: 300ms;
 
-  /* ── Type ── */
-  --font-display: 'Inter', system-ui, -apple-system, sans-serif;
+  /* ── Type ──
+   * Body + UI stay on Inter. Display (headlines, editorial moments) is
+   * Fraunces — variable serif with `opsz`, `wght`, and `SOFT` axes. The
+   * "warm wonky" voice we use across headlines comes from opsz 80-108 +
+   * SOFT 30-100, applied per-element via font-variation-settings.
+   * See index.html for the Google Fonts load.
+   */
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
   --font-body:    'Inter', system-ui, -apple-system, sans-serif;
 
   /* ─────────────────────────────────────────────────────────────

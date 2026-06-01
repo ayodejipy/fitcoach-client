@@ -14,7 +14,9 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthAcceptInviteRouteImport } from './routes/_auth/accept-invite'
+import { Route as AppSessionsRouteImport } from './routes/_app/sessions'
 import { Route as AppProgressRouteImport } from './routes/_app/progress'
+import { Route as AppPaymentsRouteImport } from './routes/_app/payments'
 import { Route as AppMessagesRouteImport } from './routes/_app/messages'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppCheckInRouteImport } from './routes/_app/check-in'
@@ -42,9 +44,19 @@ const AuthAcceptInviteRoute = AuthAcceptInviteRouteImport.update({
   path: '/accept-invite',
   getParentRoute: () => AuthRoute,
 } as any)
+const AppSessionsRoute = AppSessionsRouteImport.update({
+  id: '/sessions',
+  path: '/sessions',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppProgressRoute = AppProgressRouteImport.update({
   id: '/progress',
   path: '/progress',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPaymentsRoute = AppPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
   getParentRoute: () => AppRoute,
 } as any)
 const AppMessagesRoute = AppMessagesRouteImport.update({
@@ -68,7 +80,9 @@ export interface FileRoutesByFullPath {
   '/check-in': typeof AppCheckInRoute
   '/dashboard': typeof AppDashboardRoute
   '/messages': typeof AppMessagesRoute
+  '/payments': typeof AppPaymentsRoute
   '/progress': typeof AppProgressRoute
+  '/sessions': typeof AppSessionsRoute
   '/accept-invite': typeof AuthAcceptInviteRoute
   '/login': typeof AuthLoginRoute
 }
@@ -77,7 +91,9 @@ export interface FileRoutesByTo {
   '/check-in': typeof AppCheckInRoute
   '/dashboard': typeof AppDashboardRoute
   '/messages': typeof AppMessagesRoute
+  '/payments': typeof AppPaymentsRoute
   '/progress': typeof AppProgressRoute
+  '/sessions': typeof AppSessionsRoute
   '/accept-invite': typeof AuthAcceptInviteRoute
   '/login': typeof AuthLoginRoute
 }
@@ -89,7 +105,9 @@ export interface FileRoutesById {
   '/_app/check-in': typeof AppCheckInRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/messages': typeof AppMessagesRoute
+  '/_app/payments': typeof AppPaymentsRoute
   '/_app/progress': typeof AppProgressRoute
+  '/_app/sessions': typeof AppSessionsRoute
   '/_auth/accept-invite': typeof AuthAcceptInviteRoute
   '/_auth/login': typeof AuthLoginRoute
 }
@@ -100,7 +118,9 @@ export interface FileRouteTypes {
     | '/check-in'
     | '/dashboard'
     | '/messages'
+    | '/payments'
     | '/progress'
+    | '/sessions'
     | '/accept-invite'
     | '/login'
   fileRoutesByTo: FileRoutesByTo
@@ -109,7 +129,9 @@ export interface FileRouteTypes {
     | '/check-in'
     | '/dashboard'
     | '/messages'
+    | '/payments'
     | '/progress'
+    | '/sessions'
     | '/accept-invite'
     | '/login'
   id:
@@ -120,7 +142,9 @@ export interface FileRouteTypes {
     | '/_app/check-in'
     | '/_app/dashboard'
     | '/_app/messages'
+    | '/_app/payments'
     | '/_app/progress'
+    | '/_app/sessions'
     | '/_auth/accept-invite'
     | '/_auth/login'
   fileRoutesById: FileRoutesById
@@ -168,11 +192,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthAcceptInviteRouteImport
       parentRoute: typeof AuthRoute
     }
+    '/_app/sessions': {
+      id: '/_app/sessions'
+      path: '/sessions'
+      fullPath: '/sessions'
+      preLoaderRoute: typeof AppSessionsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/progress': {
       id: '/_app/progress'
       path: '/progress'
       fullPath: '/progress'
       preLoaderRoute: typeof AppProgressRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/payments': {
+      id: '/_app/payments'
+      path: '/payments'
+      fullPath: '/payments'
+      preLoaderRoute: typeof AppPaymentsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/messages': {
@@ -203,14 +241,18 @@ interface AppRouteChildren {
   AppCheckInRoute: typeof AppCheckInRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppMessagesRoute: typeof AppMessagesRoute
+  AppPaymentsRoute: typeof AppPaymentsRoute
   AppProgressRoute: typeof AppProgressRoute
+  AppSessionsRoute: typeof AppSessionsRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppCheckInRoute: AppCheckInRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppMessagesRoute: AppMessagesRoute,
+  AppPaymentsRoute: AppPaymentsRoute,
   AppProgressRoute: AppProgressRoute,
+  AppSessionsRoute: AppSessionsRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
