@@ -1,29 +1,9 @@
 import { Link } from '@tanstack/react-router'
 
+import { BrandSurface } from '@/components/ui/BrandSurface'
 import { Button } from '@/components/ui/button'
 import type { UseStreakResult } from '@/features/check-ins/hooks/useStreak'
 
-/*
- * StreakHero — the dashboard's headline.
- *
- * The dark forest-green card from the approved wireframe (mockup-dashboard-A).
- * Renders four distinct states from a `StreakResult`:
- *
- *   1. First-time   (count=0, !isBroken)            → empty state with CTA
- *   2. Active, due  (count>0, !hasSubmittedThisWeek)→ number + flames + "submit"
- *   3. Active, in   (count>0, hasSubmittedThisWeek) → number + flames + "locked in"
- *   4. Broken       (isBroken)                       → recovery framing (Decision 5A)
- *
- * Fire-tier rendering (tier 0-5 → 0-5 flames) escalates at the thresholds in
- * `streak-derive.ts`. Progress bar shows fill toward the NEXT tier so the
- * "almost there" pull works at any active count.
- *
- * Loading shows a skeleton matching the card's footprint so layout doesn't
- * jump when data arrives.
- *
- * Props are intentionally just the derived StreakResult — the parent passes
- * `useStreak()` output in. Component is pure UI from there.
- */
 
 interface Props {
   streak: UseStreakResult
@@ -85,13 +65,12 @@ export function StreakHero({ streak, coachFirstName }: Props) {
   // ---- State 4: broken ----
   if (streak.isBroken) {
     return (
-      <div className="relative overflow-hidden rounded-[22px] bg-[var(--green-deep)] p-7 text-white shadow-[0_12px_36px_rgba(26,122,74,.22)]">
-        <RadialGlow />
+      <BrandSurface tone="deep">
         <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-white/55">
           Your streak
         </div>
         <div className="mt-1.5 flex items-baseline gap-3">
-          <div className="text-[64px] font-extrabold leading-none tracking-tight">
+          <div className="font-display text-[64px] font-light leading-none tracking-tight" style={{ fontVariationSettings: "'opsz' 144, 'SOFT' 30" }}>
             —
           </div>
           <div className="text-[17px] font-medium text-white/75">
@@ -113,20 +92,19 @@ export function StreakHero({ streak, coachFirstName }: Props) {
         >
           <Link to="/check-in">Restart your streak →</Link>
         </Button>
-      </div>
+      </BrandSurface>
     )
   }
 
   // ---- State 1: first-time / empty ----
   if (streak.count === 0) {
     return (
-      <div className="relative overflow-hidden rounded-[22px] bg-[var(--green-deep)] p-7 text-white shadow-[0_12px_36px_rgba(26,122,74,.22)]">
-        <RadialGlow />
+      <BrandSurface tone="deep">
         <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-white/55">
           Your streak
         </div>
         <div className="mt-1.5 flex items-baseline gap-3">
-          <div className="text-[64px] font-extrabold leading-none tracking-tight">
+          <div className="font-display text-[64px] font-light leading-none tracking-tight" style={{ fontVariationSettings: "'opsz' 144, 'SOFT' 30" }}>
             —
           </div>
           <div className="text-[17px] font-medium text-white/75">weeks</div>
@@ -141,29 +119,30 @@ export function StreakHero({ streak, coachFirstName }: Props) {
         >
           <Link to="/check-in">Start your check-in →</Link>
         </Button>
-      </div>
+      </BrandSurface>
     )
   }
 
-  // ---- States 2 & 3: active streak ----
+  // ---- States 2 & 3: active streak (hero-band sizing) ----
   return (
-    <div className="relative overflow-hidden rounded-[22px] bg-[var(--green-deep)] p-7 text-white shadow-[0_12px_36px_rgba(26,122,74,.22)]">
-      <RadialGlow />
-
+    <BrandSurface tone="deep" padding="xl">
       <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-white/55">
         Your streak
       </div>
 
-      <div className="mt-1.5 flex items-baseline gap-3">
-        <div className="text-[64px] font-extrabold leading-none tracking-tight">
+      <div className="mt-3 flex items-baseline gap-4">
+        <div
+          className="font-display text-[88px] lg:text-[104px] xl:text-[120px] font-light leading-none tracking-[-0.03em]"
+          style={{ fontVariationSettings: "'opsz' 144, 'SOFT' 30" }}
+        >
           {streak.count}
         </div>
-        <div className="text-[17px] font-medium text-white/75">
+        <div className="text-[18px] font-medium text-white/75">
           {streak.count === 1 ? 'week' : 'weeks'}
         </div>
         {fires && (
           <div
-            className="ml-1 text-[28px] leading-none drop-shadow-[0_3px_12px_rgba(255,90,61,.45)]"
+            className="ml-1 text-[34px] leading-none drop-shadow-[0_3px_14px_rgba(255,90,61,.5)]"
             aria-label={`${streak.tier} flame${streak.tier === 1 ? '' : 's'}`}
           >
             {fires}
@@ -171,13 +150,24 @@ export function StreakHero({ streak, coachFirstName }: Props) {
         )}
       </div>
 
-      <p className="mt-3.5 max-w-md text-[13.5px] leading-snug text-white/75">
+      <p
+        className="mt-4 max-w-md font-display text-[18px] lg:text-[20px] leading-snug text-white/85"
+        style={{ fontVariationSettings: "'opsz' 22, 'SOFT' 60" }}
+      >
         {streak.hasSubmittedThisWeek ? (
           <>
             Locked in for Week {streak.count}.{' '}
-            {coachFirstName
-              ? `${coachFirstName} is reviewing.`
-              : 'Your coach is reviewing.'}
+            <em
+              className="not-italic text-white"
+              style={{
+                fontVariationSettings: "'opsz' 26, 'SOFT' 100",
+                fontWeight: 400,
+              }}
+            >
+              {coachFirstName
+                ? `${coachFirstName} is reviewing.`
+                : 'Your coach is reviewing.'}
+            </em>
           </>
         ) : streak.weeksToNextTier === 1 ? (
           <>One more check-in and you unlock the next flame.</>
@@ -191,7 +181,7 @@ export function StreakHero({ streak, coachFirstName }: Props) {
       </p>
 
       {/* Progress bar — fills toward the next tier */}
-      <div className="mt-5 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+      <div className="mt-7 h-2 w-full overflow-hidden rounded-full bg-white/10">
         <div
           className="h-full rounded-full"
           style={{
@@ -211,20 +201,6 @@ export function StreakHero({ streak, coachFirstName }: Props) {
               } to Tier ${streak.nextTier}`}
         </span>
       </div>
-    </div>
-  )
-}
-
-/* The subtle radial glow accent from the wireframe — purely decorative. */
-function RadialGlow() {
-  return (
-    <div
-      aria-hidden
-      className="pointer-events-none absolute -right-10 -bottom-14 h-56 w-56"
-      style={{
-        background:
-          'radial-gradient(circle at center, rgba(46,204,113,.15) 0%, transparent 65%)',
-      }}
-    />
+    </BrandSurface>
   )
 }

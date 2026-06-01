@@ -1,5 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Calendar } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -13,33 +14,16 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { cn } from '@/lib/utils'
+import { ScoreScale } from '@/features/check-ins/components/ScoreScale'
 import {
   checkInSubmitSchema,
   type CheckInSubmitFormValues,
 } from '@/features/check-ins/schemas/check-in-submit'
 import { useSubmitCheckIn } from '@/features/check-ins/hooks/useSubmitCheckIn'
+import { formatMondayFriendly } from '@/features/check-ins/utils/format-monday'
+import { weekEncouragement } from '@/features/check-ins/utils/week-encouragement'
 import { PhotoUpload } from '@/features/progress/components/PhotoUpload'
 
-/*
- * CheckInForm — pure UI for the weekly habit-loop action.
- *
- * IA pinned by /plan-design-review Decision 2A:
- *   week label → weight → energy → mood → notes (sleep added before notes
- *   as an optional supporting metric — coaches care about sleep heavily).
- *
- * `useSubmitCheckIn()` owns the mutation, the cache invalidation, the success
- * toast + navigation, and the inline-vs-toast error split. The component just
- * wires RHF + Zod → fields → onSubmit handing values + the inline-error
- * callback to the hook.
- *
- * Week start date comes from the parent (computed via `useStreak().thisMonday`
- * — ISO Monday in the device's local TZ). The user never types it.
- *
- * Photos are uploaded via the PhotoUpload field (multipart POST per file,
- * URLs accumulated locally) and submitted as `photo_urls` alongside the
- * rest of the body.
- */
 
 interface Props {
   /** YYYY-MM-DD Monday for this week, supplied by the parent route. */
@@ -73,58 +57,122 @@ export function CheckInForm({ thisMonday, programWeek }: Props) {
         form.setError('weight_lbs', { type: 'server', message }),
     })
 
-  const weekLabel = programWeek ? `Week ${programWeek} check-in` : 'This week'
-  // Format the ISO Monday for the user as "Mon, Jun 2" — read locally so
-  // the date matches what they expect to see.
+  const eyebrow = programWeek ? `Week ${programWeek} check-in` : 'This week'
   const friendlyDate = formatMondayFriendly(thisMonday)
+  const encouragement = weekEncouragement(programWeek)
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         noValidate
-        className="space-y-4"
+        className="space-y-5"
       >
+        {/* ----- Page header ----- */}
         <header>
-          <h1 className="text-[22px] font-extrabold tracking-tight text-foreground">
-            {weekLabel}
+          <div className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[color:var(--green-brand)]">
+            {eyebrow}
+          </div>
+          <h1
+            className="mt-2 font-display text-[36px] lg:text-[42px] font-light leading-[1.05] tracking-[-0.015em] text-foreground"
+            style={{ fontVariationSettings: "'opsz' 100, 'SOFT' 40" }}
+          >
+            How was your{' '}
+            <em
+              className="not-italic"
+              style={{
+                fontVariationSettings: "'opsz' 108, 'SOFT' 80",
+                fontWeight: 400,
+              }}
+            >
+              week?
+            </em>
           </h1>
-          <p className="mt-1 text-[13px] text-[color:var(--text-secondary)]">
+          <p className="mt-2 flex items-center gap-2 text-[13.5px] text-[color:var(--text-secondary)]">
+            <Calendar
+              className="h-4 w-4 text-[color:var(--text-muted)]"
+              strokeWidth={2}
+            />
             Week of {friendlyDate} · takes ~90 seconds
           </p>
         </header>
 
-        <div className="rounded-[14px] border border-border bg-card p-5 shadow-[var(--shadow-card)]">
-          {/* Weight (required) */}
-          <FormField
-            control={form.control}
-            name="weight_lbs"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Weight (lbs)</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    inputMode="decimal"
-                    step="0.1"
-                    placeholder="e.g. 175.4"
-                    value={field.value ?? ''}
-                    onChange={(e) =>
-                      field.onChange(
-                        e.target.value === '' ? undefined : Number(e.target.value),
-                      )
-                    }
-                    ref={field.ref}
-                    onBlur={field.onBlur}
-                    name={field.name}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        {/* ===== SECTION 1: NUMBERS ===== */}
+        <section className="rounded-[18px] border border-border bg-card p-6 shadow-[var(--shadow-card)]">
+          <SectionHeader number={1} label="Numbers" />
 
-          {/* Energy 1-10 */}
+          <div className="mt-5">
+            <FormField
+              control={form.control}
+              name="weight_lbs"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Weight (lbs)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      inputMode="decimal"
+                      step="0.1"
+                      placeholder="e.g. 175.4"
+                      value={field.value ?? ''}
+                      onChange={(event) =>
+                        field.onChange(
+                          event.target.value === ''
+                            ? undefined
+                            : Number(event.target.value),
+                        )
+                      }
+                      ref={field.ref}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="mt-5">
+            <FormField
+              control={form.control}
+              name="sleep_hrs"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Average sleep (hours)</FormLabel>
+                  <FormDescription>
+                    Optional. Per night across the week.
+                  </FormDescription>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      inputMode="decimal"
+                      step="0.25"
+                      placeholder="e.g. 7.5"
+                      value={field.value ?? ''}
+                      onChange={(event) =>
+                        field.onChange(
+                          event.target.value === ''
+                            ? undefined
+                            : Number(event.target.value),
+                        )
+                      }
+                      ref={field.ref}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </section>
+
+        {/* ===== SECTION 2: FEELINGS ===== */}
+        <section className="rounded-[18px] border border-border bg-card p-6 shadow-[var(--shadow-card)]">
+          <SectionHeader number={2} label="Feelings" />
+
           <div className="mt-5">
             <FormField
               control={form.control}
@@ -147,8 +195,7 @@ export function CheckInForm({ thisMonday, programWeek }: Props) {
             />
           </div>
 
-          {/* Mood 1-10 */}
-          <div className="mt-5">
+          <div className="mt-6">
             <FormField
               control={form.control}
               name="mood_score"
@@ -169,40 +216,12 @@ export function CheckInForm({ thisMonday, programWeek }: Props) {
               )}
             />
           </div>
+        </section>
 
-          {/* Sleep (optional) */}
-          <div className="mt-5">
-            <FormField
-              control={form.control}
-              name="sleep_hrs"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Average sleep (hours)</FormLabel>
-                  <FormDescription>Optional. Per night across the week.</FormDescription>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      inputMode="decimal"
-                      step="0.25"
-                      placeholder="e.g. 7.5"
-                      value={field.value ?? ''}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value === '' ? undefined : Number(e.target.value),
-                        )
-                      }
-                      ref={field.ref}
-                      onBlur={field.onBlur}
-                      name={field.name}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+        {/* ===== SECTION 3: NOTES & PHOTOS ===== */}
+        <section className="rounded-[18px] border border-border bg-card p-6 shadow-[var(--shadow-card)]">
+          <SectionHeader number={3} label="Notes & photos" />
 
-          {/* Notes (optional) */}
           <div className="mt-5">
             <FormField
               control={form.control}
@@ -211,7 +230,8 @@ export function CheckInForm({ thisMonday, programWeek }: Props) {
                 <FormItem>
                   <FormLabel>Notes for your coach</FormLabel>
                   <FormDescription>
-                    Optional. What went well, what was hard, anything you want feedback on.
+                    Optional. What went well, what was hard, anything you want
+                    feedback on.
                   </FormDescription>
                   <FormControl>
                     <Textarea
@@ -226,7 +246,6 @@ export function CheckInForm({ thisMonday, programWeek }: Props) {
             />
           </div>
 
-          {/* Progress photos (optional, up to 4) */}
           <div className="mt-5">
             <FormField
               control={form.control}
@@ -245,79 +264,49 @@ export function CheckInForm({ thisMonday, programWeek }: Props) {
               )}
             />
           </div>
-        </div>
+        </section>
 
-        <Button
-          type="submit"
-          size="lg"
-          className="h-[50px] w-full text-[15px] shadow-[0_3px_14px_rgba(26,122,74,.32)]"
-          disabled={isPending}
-        >
-          {isPending ? 'Submitting…' : 'Submit check-in'}
-        </Button>
+        {/* ----- Encouragement + Submit ----- */}
+        <div className="pt-2 text-center">
+          <p
+            className="mb-3 font-display text-[16px] italic text-[color:var(--text-secondary)]"
+            style={{ fontVariationSettings: "'opsz' 14, 'SOFT' 70" }}
+          >
+            "{encouragement}"
+          </p>
+          <Button
+            type="submit"
+            size="lg"
+            className="h-[52px] w-full text-[15.5px] shadow-[0_3px_14px_rgba(26,122,74,.32)]"
+            disabled={isPending}
+          >
+            {isPending ? 'Submitting…' : 'Submit check-in'}
+          </Button>
+        </div>
       </form>
     </Form>
   )
 }
 
 /*
- * ScoreScale — 1-10 chip row.
- *
- * Mobile-first tap targets (44px+ each), reads better than a slider on a
- * narrow viewport. Used for energy + mood.
+ * SectionHeader — numbered chip + uppercase label for each form chunk.
+ * Inline because it's used only here (4 lines, presentation-only — its own
+ * file would be over-engineering). If a second consumer appears, extract.
  */
-function ScoreScale({
-  value,
-  onChange,
-  invalid,
-  name,
-}: {
-  value: number | undefined
-  onChange: (n: number) => void
-  invalid: boolean
-  name: string
-}) {
-  return (
-    <div
-      role="radiogroup"
-      aria-invalid={invalid || undefined}
-      className="grid grid-cols-10 gap-1.5"
-    >
-      {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => {
-        const active = value === n
-        return (
-          <button
-            key={n}
-            type="button"
-            role="radio"
-            aria-checked={active}
-            aria-label={`${n} of 10`}
-            data-active={active || undefined}
-            name={name}
-            onClick={() => onChange(n)}
-            className={cn(
-              'h-11 rounded-[10px] border-[1.5px] text-[14px] font-semibold transition-colors',
-              active
-                ? 'border-[color:var(--green-brand)] bg-[color:var(--green-brand)] text-white'
-                : 'border-border bg-[color:var(--bg-input)] text-[color:var(--text-secondary)] hover:border-[color:var(--green-mid)]',
-              invalid && !active && 'border-[color:var(--red)]',
-            )}
-          >
-            {n}
-          </button>
-        )
-      })}
-    </div>
-  )
+interface SectionHeaderProps {
+  number: number
+  label: string
 }
 
-/* Render YYYY-MM-DD as "Mon, Jun 2" in the device's local timezone. */
-function formatMondayFriendly(yyyymmdd: string): string {
-  const [y, m, d] = yyyymmdd.split('-').map(Number) as [number, number, number]
-  const date = new Date(y, m - 1, d)
-  return date.toLocaleDateString(undefined, {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-  })
+function SectionHeader({ number, label }: SectionHeaderProps) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[color:var(--green-pale)] text-[11px] font-bold text-[color:var(--green-brand)] ring-1 ring-[color:var(--green-soft)]">
+        {number}
+      </span>
+      <h2 className="text-[12px] font-bold uppercase tracking-[0.14em] text-foreground">
+        {label}
+      </h2>
+    </div>
+  )
 }

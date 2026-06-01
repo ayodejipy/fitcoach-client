@@ -1,44 +1,65 @@
 import { Link } from '@tanstack/react-router'
-import { LogOut } from 'lucide-react'
 
 import { NAV_ITEMS } from '@/features/navigation/nav-items'
-import { useLogout } from '@/features/auth/hooks/useLogout'
+import { SidebarCoachCard } from '@/features/navigation/components/SidebarCoachCard'
 import { useUnreadCount } from '@/features/notifications/hooks/useUnreadCount'
+import { SidebarProfileMenu } from '@/features/profile/components/SidebarProfileMenu'
+import { useMe } from '@/features/profile/hooks/useMe'
 
 /*
- * Sidebar — desktop-only (md+). Fixed to the left edge, full viewport height.
+ * Sidebar — desktop-only (lg+). Fixed to the left edge, full viewport height.
  *
- * Decision 9D: at md+ the bottom nav moves to a left sidebar; the four
- * destinations stay the same, the content column stays single-column and
- * capped at ~640px. No separate desktop redesign — same intent, different
- * presentation.
+ * Post-redesign layout (Variant A locked from /plan-design-review, with
+ * the coach card lifted from Variant B):
  *
- * Sign-out is anchored at the bottom of the sidebar with a subtle divider
- * above it — separates "where I go" from "leave the app". The mobile
- * equivalent will live behind a settings/account screen (later task), so
- * for now the only way to sign out on mobile is to size up to desktop.
- * Acceptable for v1 — we'll revisit when settings ships.
+ *   [F badge + "FitCoach" wordmark]
+ *   [NAVIGATE label]
+ *   [Home / Check-in / Progress / Messages nav items]
+ *   [flex-1 spacer]
+ *   [SidebarCoachCard — brand-green, avatar + program progress bar]
+ *   [SidebarProfileMenu — identity trigger, opens dropdown with sign-out]
  *
- * Messages tab shows the actual unread count when > 0 — desktop has the
- * real estate for the number, where the mobile bar only shows a dot.
+ * Surface is cream so it sits warm against the cream page bg, with a
+ * `--border-warm` right edge for separation. The sign-out from the old
+ * sidebar moved into the SidebarProfileMenu dropdown (the menu now owns
+ * Billing, Sessions, and Sign-out under one identity surface).
+ *
+ * Messages tab still shows the live unread count when > 0.
  */
 export function Sidebar() {
-  const logout = useLogout()
   const { count: unread } = useUnreadCount()
+  const { data: me } = useMe()
 
   return (
     <aside
       aria-label="Primary"
-      className="hidden md:fixed md:inset-y-0 md:left-0 md:z-30 md:flex md:w-60 md:flex-col md:border-r md:border-border md:bg-card md:px-3 md:py-6"
+      className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:flex lg:w-60 lg:flex-col lg:border-r"
+      style={{
+        background: 'var(--cream)',
+        borderRightColor: 'var(--border-warm)',
+      }}
     >
-      <Link
-        to="/dashboard"
-        className="px-3 text-[18px] font-extrabold tracking-tight text-foreground"
-      >
-        FitCoach
+      <Link to="/dashboard" className="flex items-center gap-2 px-5 pt-7 pb-2">
+        <span
+          className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-white font-bold text-[12px]"
+          style={{ background: 'var(--green-deep)' }}
+          aria-hidden
+        >
+          F
+        </span>
+        <span className="text-[15px] font-extrabold tracking-tight text-foreground">
+          FitCoach
+        </span>
       </Link>
 
-      <nav className="mt-8 flex flex-col gap-1">
+      <div
+        className="mt-6 px-5 text-[10.5px] font-bold uppercase tracking-[0.14em] text-[color:var(--text-muted)]"
+        aria-hidden
+      >
+        Navigate
+      </div>
+
+      <nav className="mt-2 flex flex-col gap-0.5 px-3">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon
           const showBadge = item.key === 'messages' && unread > 0
@@ -51,7 +72,7 @@ export function Sidebar() {
                   ? `${item.ariaLabel}, ${unread} unread`
                   : item.ariaLabel
               }
-              className="flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-[14px] font-semibold text-[color:var(--text-secondary)] transition-colors hover:bg-[color:var(--bg-surface-muted)]"
+              className="flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-[14px] font-semibold text-[color:var(--text-secondary)] transition-colors hover:bg-[color:var(--cream-soft)]"
               activeProps={{
                 className:
                   'flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-[14px] font-semibold text-[color:var(--green-brand)] bg-[color:var(--green-pale)]',
@@ -61,7 +82,8 @@ export function Sidebar() {
               <span className="flex-1">{item.label}</span>
               {showBadge && (
                 <span
-                  className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[color:var(--red)] px-1.5 text-[11px] font-bold leading-none text-white"
+                  className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[11px] font-bold leading-none text-white"
+                  style={{ background: 'var(--green-brand)' }}
                   aria-hidden
                 >
                   {unread > 99 ? '99+' : unread}
@@ -72,15 +94,16 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="mt-auto border-t border-border pt-3">
-        <button
-          type="button"
-          onClick={() => void logout()}
-          className="flex w-full items-center gap-3 rounded-[10px] px-3 py-2.5 text-[14px] font-semibold text-[color:var(--text-secondary)] transition-colors hover:bg-[color:var(--bg-surface-muted)]"
-        >
-          <LogOut className="h-[18px] w-[18px]" strokeWidth={2} />
-          <span>Sign out</span>
-        </button>
+      <div className="flex-1" />
+
+      <SidebarCoachCard
+        coachName={me?.coach_name}
+        programWeek={me?.program_week}
+        programTotal={me?.program_total}
+      />
+
+      <div className="px-3 pb-4">
+        <SidebarProfileMenu />
       </div>
     </aside>
   )
