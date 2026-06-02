@@ -4,10 +4,9 @@ import { PageShell } from '@/components/layout/PageShell'
 import { MessagesEmptyState } from '@/features/notifications/components/MessagesEmptyState'
 import { MessagesInbox } from '@/features/notifications/components/MessagesInbox'
 import { MessagesLoadingSkeleton } from '@/features/notifications/components/MessagesLoadingSkeleton'
-import { useMessageThreads } from '@/features/notifications/hooks/useMessageThreads'
+import { useCoachReplies } from '@/features/notifications/hooks/useCoachReplies'
 import { firstWord } from '@/features/dashboard/utils/first-word'
 import { useMe } from '@/features/profile/hooks/useMe'
-
 
 export const Route = createFileRoute('/_app/messages')({
   component: MessagesPage,
@@ -15,10 +14,10 @@ export const Route = createFileRoute('/_app/messages')({
 
 function MessagesPage() {
   const { data: me } = useMe()
-  const threads = useMessageThreads()
+  const replies = useCoachReplies()
   const coachFirstName = firstWord(me?.coach_name) ?? 'your coach'
 
-  if (threads.isLoading) {
+  if (replies.isLoading) {
     return (
       <PageShell size="narrow">
         <MessagesLoadingSkeleton />
@@ -26,7 +25,7 @@ function MessagesPage() {
     )
   }
 
-  if (threads.threads.length === 0) {
+  if (replies.total === 0) {
     return (
       <PageShell size="narrow">
         <header className="mb-6">
@@ -55,6 +54,8 @@ function MessagesPage() {
     )
   }
 
+  const replyWord = replies.total === 1 ? 'reply' : 'replies'
+
   return (
     <PageShell size="narrow">
       <header className="mb-6">
@@ -77,28 +78,33 @@ function MessagesPage() {
           </em>
         </h1>
         <p className="mt-3 flex flex-wrap items-center gap-3 text-[13.5px] text-[color:var(--text-secondary)]">
-          {threads.unread.length > 0 && (
+          {replies.unread.length > 0 && (
             <>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--green-pale)] px-2.5 py-1 text-[11.5px] font-bold uppercase tracking-[0.06em] text-[color:var(--green-brand)] ring-1 ring-[color:var(--green-soft)]">
                 <span
                   className="h-1.5 w-1.5 rounded-full bg-[color:var(--green-brand)] animate-pulse"
                   aria-hidden
                 />
-                {threads.unread.length} new
+                {replies.unread.length} new
               </span>
               <span aria-hidden className="text-[color:var(--text-muted)]">
                 ·
               </span>
             </>
           )}
-          <span>
-            {threads.threads.length}{' '}
-            {threads.threads.length === 1 ? 'reply' : 'replies'} total
+          <span className="tabular-nums">
+            {replies.total} {replyWord} total
           </span>
         </p>
       </header>
 
-      <MessagesInbox threads={threads} />
+      <MessagesInbox replies={replies} />
+
+      <p className="mt-8 text-center text-[12px] text-[color:var(--text-muted)]">
+        {replies.capped
+          ? `Showing 100 most recent notifications · older replies not loaded`
+          : `Showing all ${replies.total} ${replyWord} · ${coachFirstName} reviews check-ins weekly`}
+      </p>
     </PageShell>
   )
 }

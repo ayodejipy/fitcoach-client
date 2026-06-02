@@ -4,6 +4,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
 
 import {
+  portalListNotificationsInfiniteQueryKey,
   portalListNotificationsQueryKey,
   portalUnreadNotificationCountQueryKey,
 } from '@/lib/api/generated/@tanstack/react-query.gen'
@@ -49,14 +50,25 @@ export function useNotificationsRealtime() {
       void queryClient.invalidateQueries({
         queryKey: portalUnreadNotificationCountQueryKey(),
       })
+      // Both the regular list (useLatestCoachReply on the dashboard) and
+      // the infinite list (useMessageThreads on /messages) have distinct
+      // cache keys — invalidate both so a push refreshes whichever view
+      // is mounted.
       void queryClient.invalidateQueries({
         queryKey: portalListNotificationsQueryKey(),
+      })
+      void queryClient.invalidateQueries({
+        queryKey: portalListNotificationsInfiniteQueryKey(),
       })
 
       const copy = friendlyCopyFor(payload)
       if (!copy) return
 
-      if (payload.type === 'coach_reply' || payload.type === 'coach_message') {
+      if (
+        payload.type === 'checkin.responded' ||
+        payload.type === 'coach_reply' ||
+        payload.type === 'coach_message'
+      ) {
         toast(copy.title, {
           description: copy.description,
           action: {
@@ -99,11 +111,14 @@ function friendlyCopyFor(notification: ModelsNotification): FriendlyCopy | null 
     pickStringFromNotificationData(data, 'coach_name') ?? 'Your coach'
 
   switch (notification.type) {
+    case 'checkin.responded':
     case 'coach_reply':
     case 'coach_message':
       return {
         title: `${coachName} replied`,
-        description: pickStringFromNotificationData(data, 'preview'),
+        description:
+          pickStringFromNotificationData(data, 'coach_response') ??
+          pickStringFromNotificationData(data, 'preview'),
       }
     case 'session_reminder':
       return {

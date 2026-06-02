@@ -1,5 +1,6 @@
 import { format, formatDistanceToNowStrict, parseISO } from 'date-fns'
 
+import { deriveCoachReplyPreview } from '@/features/notifications/utils/derive-coach-reply-preview'
 import { deriveSubject } from '@/features/notifications/utils/derive-subject'
 import { pickStringFromNotificationData } from '@/features/notifications/utils/pick-notification-data'
 import { initials } from '@/features/profile/utils/initials'
@@ -17,9 +18,7 @@ export function MessageThread({ notification }: Props) {
     pickStringFromNotificationData(data, 'coach_name') ?? 'Your coach'
   const coachRole =
     pickStringFromNotificationData(data, 'coach_role') ?? 'Senior coach'
-  const preview =
-    pickStringFromNotificationData(data, 'preview') ??
-    'Read the full reply in your inbox.'
+  const preview = deriveCoachReplyPreview(notification)
   const subject = deriveSubject(notification)
 
   const relativeCreated = notification.created_at

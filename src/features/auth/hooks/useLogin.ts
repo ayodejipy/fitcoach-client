@@ -7,19 +7,6 @@ import { appErrorFromThrown, isFieldLevelError } from '@/lib/api/error'
 import { useTokensStore } from '@/stores/tokens'
 import type { LoginFormValues } from '@/features/auth/schemas/login'
 
-/*
- * useLogin — owns the entire async login flow.
- *
- * Wires the generated `portalLoginMutation()` (from @hey-api/openapi-ts +
- * TanStack Query plugin) into TanStack Query, then layers on the portal's
- * side-effects: token-store hydration, redirect navigation, the inline-vs-toast
- * error split.
- *
- * Components stay purely declarative — render fields, hand
- * `(values) => login(values, { onInlineError: ... })` to `form.handleSubmit`,
- * read `isPending` to disable the submit button.
- */
-
 export interface LoginMutateOptions {
   /**
    * Called when the backend returns a validation / 401 error. The form uses

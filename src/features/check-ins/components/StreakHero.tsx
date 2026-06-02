@@ -4,7 +4,6 @@ import { BrandSurface } from '@/components/ui/BrandSurface'
 import { Button } from '@/components/ui/button'
 import type { UseStreakResult } from '@/features/check-ins/hooks/useStreak'
 
-
 interface Props {
   streak: UseStreakResult
   /** Used in state 3's "Locked in" copy when present ("Marcus is reviewing"). */

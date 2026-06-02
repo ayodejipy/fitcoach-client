@@ -1,16 +1,25 @@
 import { format } from 'date-fns'
-import { Bell } from 'lucide-react'
 
+import { NotificationsBellDropdown } from '@/features/notifications/components/NotificationsBellDropdown'
+import { NotificationsBellSheet } from '@/features/notifications/components/NotificationsBellSheet'
 import { initials } from '@/features/profile/utils/initials'
 
-
+/*
+ * GreetingHeader — top of the dashboard.
+ *
+ * Layout: greeting block (left) + notifications bell trigger (right).
+ *
+ * The bell now opens the unified notifications inbox (coach replies +
+ * system updates) via NotificationsBellDropdown on desktop or
+ * NotificationsBellSheet on mobile. Each component owns its own
+ * unread-count subscription (drives the red dot), so this header no
+ * longer plumbs `hasUnread`.
+ */
 interface Props {
   firstName: string | null | undefined
   coachName: string | null | undefined
   programWeek: number | null | undefined
   programTotal: number | null | undefined
-  /** True if there's something unread — shows the red dot on the bell. */
-  hasUnread?: boolean
 }
 
 function timeOfDayGreeting(date: Date = new Date()): string {
@@ -27,7 +36,6 @@ export function GreetingHeader({
   coachName,
   programWeek,
   programTotal,
-  hasUnread = false,
 }: Props) {
   const greeting = timeOfDayGreeting()
   const programLine =
@@ -83,21 +91,10 @@ export function GreetingHeader({
         )}
       </div>
 
-      <button
-        type="button"
-        aria-label={
-          hasUnread ? 'Notifications, new replies waiting' : 'Notifications'
-        }
-        className="relative flex h-10 w-10 items-center justify-center rounded-full border-[1.5px] border-border bg-card text-[color:var(--text-secondary)] transition-colors hover:bg-muted"
-      >
-        <Bell className="h-[18px] w-[18px]" strokeWidth={2} />
-        {hasUnread && (
-          <span
-            aria-hidden
-            className="absolute top-2 right-[9px] block h-[9px] w-[9px] rounded-full border-2 border-card bg-[color:var(--red)]"
-          />
-        )}
-      </button>
+      <div className="shrink-0">
+        <NotificationsBellDropdown />
+        <NotificationsBellSheet />
+      </div>
     </header>
   )
 }

@@ -2,25 +2,6 @@ import { useEffect, useState } from 'react'
 
 import { useCelebrationStore } from '@/stores/celebration'
 
-/*
- * CelebrationSheet — the dopamine moment after a check-in is submitted.
- *
- * Pinned by /plan-design-review Decision 4A:
- *   - Brief sheet (~1.2s feel) over a dimmed backdrop.
- *   - The streak number scales up + flames pulse with a glow.
- *   - Single line of friendly copy. Tap anywhere to dismiss early.
- *   - When the submit unlocked a new tier, a small "new tier unlocked" tag
- *     sits above the number — that's the rare, extra-satisfying moment.
- *   - Optional iOS Safari haptic via navigator.vibrate (no-op everywhere else).
- *
- * State source: Zustand `useCelebrationStore`. `useSubmitCheckIn` pushes a
- * payload BEFORE navigating to /dashboard; the dashboard mounts this sheet,
- * which reads the payload, animates, and dismisses itself.
- *
- * Keyframes (`streak-pop`, `flame-glow`, `sheet-rise`, `backdrop-fade`)
- * live in `src/styles/tokens.css` so they're available app-wide.
- */
-
 const AUTO_DISMISS_MS = 1500
 const FIRE = '🔥'
 function fireString(tier: number): string {

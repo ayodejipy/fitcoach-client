@@ -10,25 +10,6 @@ import '@/lib/api/client' // side-effect: registers the auth interceptor on the 
 import { queryClient } from '@/lib/api/query-client'
 import { Toaster } from '@/components/feedback/Toaster'
 
-/*
- * App entrypoint.
- *
- * Provider stack (outermost → innermost):
- *   1. <StrictMode> — surface dev-time issues early.
- *   2. <QueryClientProvider> — TanStack Query cache for typed API hooks
- *      exposed through openapi-react-query (`$api`).
- *   3. <RouterProvider> — TanStack Router. The router tree itself is generated
- *      from `src/routes/` by the Vite plugin (see vite.config.ts); never
- *      hand-edit `routeTree.gen.ts`.
- *
- * Auth gate (Decision 1A): the `_app` layout uses `beforeLoad` to redirect
- * unauthenticated users to `/_auth/login`. That gate lives in
- * `src/routes/_app.tsx` (wired in Task T4).
- *
- * Dev tooling: <ReactQueryDevtools> renders a floating panel in dev only
- * (Vite strips it via tree-shaking in production builds because of the
- * `import.meta.env.DEV` guard).
- */
 
 const router = createRouter({
   routeTree,

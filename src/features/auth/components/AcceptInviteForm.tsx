@@ -17,17 +17,6 @@ import {
 } from '@/features/auth/schemas/accept-invite'
 import { useAcceptInvite } from '@/features/auth/hooks/useAcceptInvite'
 
-/*
- * AcceptInviteForm — pure UI (Decision 6A cold-start).
- *
- * `useAcceptInvite(token)` owns the chained accept-invite → login → dashboard
- * flow and all its side effects (toasts, navigation, token hydration). This
- * component just sets up the form, renders fields, and delegates submit.
- *
- * The token comes from the URL search param (?token=...) — surfaced by the
- * route's `validateSearch` and passed in as a prop.
- */
-
 interface Props {
   token: string
 }

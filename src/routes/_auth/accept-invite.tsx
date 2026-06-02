@@ -3,7 +3,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { AcceptInviteForm } from '@/features/auth/components/AcceptInviteForm'
 
 /*
- * `/accept-invite?token=...` — first-time portal setup (Decision 6A cold-start).
+ * `/accept-invite?token=...` — first-time portal setup.
  *
  * The token comes from the email link the coach sent. Without it we can't
  * complete the invite, so we render a friendly fallback that points the user

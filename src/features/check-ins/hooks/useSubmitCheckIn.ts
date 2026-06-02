@@ -30,11 +30,6 @@ import { useCelebrationStore } from '@/stores/celebration'
  * Common failure mode: 409 duplicate-week — the user tried to submit twice
  * for the same Monday. Backend's message is user-ready ("you've already
  * checked in this week"), surfaces inline via `onInlineError`.
- *
- * The celebration payload computes the new streak count by hand rather than
- * waiting for the invalidated query to refetch — that way the sheet animates
- * the EXACT old-to-new transition the user just caused, with no awkward
- * "loading…" pause.
  */
 export interface SubmitCheckInOptions {
   onInlineError?: (message: string) => void

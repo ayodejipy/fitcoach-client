@@ -1,14 +1,4 @@
 import type { ReactNode } from 'react'
-
-/*
- * ComingSoon — shared placeholder card for routes that are wired in the nav
- * but whose feature work hasn't landed yet (currently /progress for T9 and
- * /messages for T8).
- *
- * Lives in `features/navigation` because it's the navigation layer's
- * responsibility: linking to a route that exists in the registry but isn't
- * built yet. Once both T8 and T9 ship, this component can be deleted.
- */
 interface Props {
   icon: ReactNode
   title: string

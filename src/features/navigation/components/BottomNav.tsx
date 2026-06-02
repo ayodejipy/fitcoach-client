@@ -1,10 +1,10 @@
 import { Link } from '@tanstack/react-router'
 
 import { NAV_ITEMS } from '@/features/navigation/nav-items'
-import { useUnreadCount } from '@/features/notifications/hooks/useUnreadCount'
+import { useUnreadCoachRepliesCount } from '@/features/notifications/hooks/useUnreadCoachRepliesCount'
 
 export function BottomNav() {
-  const { count: unread } = useUnreadCount()
+  const { count: unread } = useUnreadCoachRepliesCount()
 
   return (
     <nav

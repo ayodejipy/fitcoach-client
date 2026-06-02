@@ -10,26 +10,6 @@ import { appErrorFromThrown, isFieldLevelError } from '@/lib/api/error'
 import { useTokensStore } from '@/stores/tokens'
 import type { AcceptInviteFormValues } from '@/features/auth/schemas/accept-invite'
 
-/*
- * useAcceptInvite — owns the chained accept-invite → login → dashboard flow
- * (Decision 6A cold-start).
- *
- * Backend's POST /portal/accept-invite returns 204 No Content (sets the
- * password only). To land the user on their dashboard immediately we chain
- * accept-invite → login automatically:
- *
- *   1. POST /portal/accept-invite { token, password }     → 204
- *   2. POST /portal/auth/login    { email, password }     → tokens
- *   3. Hydrate the Zustand tokens store; navigate to /dashboard.
- *
- * If accept-invite succeeds but login fails (rare — would mean the new
- * password didn't take, or rate-limited), the hook falls back to a friendly
- * toast and pushes the user to /login.
- *
- * Both calls use the typed mutations generated from openapi.json via
- * @hey-api/openapi-ts + TanStack Query plugin.
- */
-
 export interface AcceptInviteMutateOptions {
   /**
    * Called when accept-invite returns a validation / 401 error. The form
