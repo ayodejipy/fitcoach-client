@@ -6,33 +6,6 @@ import { useUnreadCoachRepliesCount } from '@/features/notifications/hooks/useUn
 import { SidebarProfileMenu } from '@/features/profile/components/SidebarProfileMenu'
 import { useMe } from '@/features/profile/hooks/useMe'
 
-/*
- * Sidebar — desktop-only (lg+). Fixed to the left edge, full viewport height.
- *
- * Post-redesign layout:
- *
- *   [F badge + "FitCoach" wordmark]
- *   [NAVIGATE label]
- *   [Home / Check-in / Progress / Messages nav items]
- *   [COACHING label]
- *   [SidebarCoachCard — coach attribution]
- *   [flex-1 spacer]
- *   [SidebarProfileMenu — identity trigger, opens dropdown with sign-out]
- *
- * The coach card sits in its OWN section grouped with the nav, well above
- * the user-identity menu trigger at the bottom. Earlier iterations pinned
- * the coach card directly above the menu, which read as two avatar+name
- * blocks stacked — visual confusion between "your coach" and "you". The
- * COACHING-section placement + flex-1 spacer establish clear hierarchy:
- * navigate-things up top, identity at the bottom.
- *
- * Surface is cream so it sits warm against the cream page bg, with a
- * `--border-warm` right edge for separation. The sign-out from the old
- * sidebar moved into the SidebarProfileMenu dropdown (the menu now owns
- * Billing, Sessions, and Sign-out under one identity surface).
- *
- * Messages tab still shows the live unread count when > 0.
- */
 export function Sidebar() {
   const { count: unread } = useUnreadCoachRepliesCount()
   const { data: me } = useMe()
