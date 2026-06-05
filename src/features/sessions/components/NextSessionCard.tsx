@@ -11,23 +11,7 @@ import {
 import { sessionCountdown } from '@/features/sessions/utils/session-countdown'
 import type { UseNextSessionResult } from '@/features/sessions/hooks/useNextSession'
 
-/*
- * NextSessionCard — one of the 2×2 dashboard secondary cards.
- *
- * Wraps `BrandSurface` with `tone="mint"` so it reads as a branded moment
- * inside the otherwise-neutral grid. Adds an orange urgency chip
- * ("in 2 hours" / "in 1 day") when the session is within 48 hours.
- *
- * Three states:
- *   - loading: subtle skeleton bar.
- *   - has session: card with title, date label ("Today" / "Tomorrow" / weekday),
- *     time range, optional countdown chip, and a Join button if `zoom_link`
- *     is present.
- *   - no upcoming: quiet empty-state line, "See all sessions" link.
- *
- * The card is presentational. `useNextSession()` does the data work in the
- * dashboard route; the card just renders the result.
- */
+
 interface Props {
   nextSession: UseNextSessionResult
 }
