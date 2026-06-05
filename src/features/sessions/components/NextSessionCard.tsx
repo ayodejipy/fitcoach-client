@@ -1,8 +1,9 @@
 import { Link } from '@tanstack/react-router'
-import { Calendar, Video } from 'lucide-react'
+import { Calendar, Check, Video } from 'lucide-react'
 
 import { BrandSurface } from '@/components/ui/BrandSurface'
 import { Button } from '@/components/ui/button'
+import { useConfirmSession } from '@/features/sessions/hooks/useConfirmSession'
 import {
   sessionDateLabel,
   sessionTimeRange,
@@ -32,6 +33,8 @@ interface Props {
 }
 
 export function NextSessionCard({ nextSession }: Props) {
+  const confirm = useConfirmSession()
+
   if (nextSession.isLoading) {
     return (
       <div className="h-[112px] animate-pulse rounded-[22px] bg-muted" />
@@ -105,14 +108,27 @@ export function NextSessionCard({ nextSession }: Props) {
           </p>
         </div>
 
-        {session.zoom_link && (
+        {!session.confirmed && session.id ? (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            disabled={confirm.isPending}
+            aria-label="Confirm this session"
+            onClick={() => confirm.mutate({ path: { id: session.id! }, body: { confirmed: true } })}
+            className="shrink-0"
+          >
+            <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
+            {confirm.isPending ? 'Confirming…' : 'Confirm'}
+          </Button>
+        ) : session.zoom_link ? (
           <Button asChild size="sm" className="shrink-0">
             <a href={session.zoom_link} target="_blank" rel="noreferrer">
               <Video className="h-4 w-4" strokeWidth={2} />
               Join
             </a>
           </Button>
-        )}
+        ) : null}
       </div>
     </BrandSurface>
   )

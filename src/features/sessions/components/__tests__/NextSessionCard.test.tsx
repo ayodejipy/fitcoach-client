@@ -2,6 +2,13 @@ import { render, screen } from '@testing-library/react'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { NextSessionCard } from '@/features/sessions/components/NextSessionCard'
+import { createTestQueryClient, withQueryClient } from '@/test/react-helpers'
+
+// Fresh client per test; the wrapper is rebuilt inside each render call.
+const renderCard = (...args: Parameters<typeof NextSessionCard>) =>
+  render(<NextSessionCard {...args[0]} />, {
+    wrapper: withQueryClient(createTestQueryClient()),
+  })
 
 /*
  * NextSessionCard.test — branch coverage for the dashboard card.
@@ -48,11 +55,9 @@ describe('<NextSessionCard />', () => {
   })
 
   it('renders a skeleton when loading', () => {
-    const { container } = render(
-      <NextSessionCard
-        nextSession={{ session: null, isLoading: true, isError: false }}
-      />,
-    )
+    const { container } = renderCard({
+      nextSession: { session: null, isLoading: true, isError: false },
+    })
 
     // The skeleton is the only top-level element; we assert on its animate-pulse class.
     const skeleton = container.firstElementChild
@@ -60,11 +65,9 @@ describe('<NextSessionCard />', () => {
   })
 
   it('renders the empty state with a "See all" link when no upcoming session', () => {
-    render(
-      <NextSessionCard
-        nextSession={{ session: null, isLoading: false, isError: false }}
-      />,
-    )
+    renderCard({
+      nextSession: { session: null, isLoading: false, isError: false },
+    })
 
     expect(screen.getByText(/no upcoming session/i)).toBeInTheDocument()
     const seeAll = screen.getByRole('link', { name: /see all/i })
@@ -73,20 +76,19 @@ describe('<NextSessionCard />', () => {
 
   it('renders title, "Today" date, and time range for a session today', () => {
     const todayAt230pm = new Date(2026, 4, 13, 14, 30, 0).toISOString()
-    render(
-      <NextSessionCard
-        nextSession={{
-          isLoading: false,
-          isError: false,
-          session: {
-            id: 'sess-1',
-            title: '1:1 strength review',
-            starts_at: todayAt230pm,
-            duration_mins: 45,
-          },
-        }}
-      />,
-    )
+    renderCard({
+      nextSession: {
+        isLoading: false,
+        isError: false,
+        session: {
+          id: 'sess-1',
+          title: '1:1 strength review',
+          starts_at: todayAt230pm,
+          duration_mins: 45,
+          confirmed: true,
+        },
+      },
+    })
 
     expect(
       screen.getByRole('heading', { name: /1:1 strength review/i }),
@@ -98,39 +100,37 @@ describe('<NextSessionCard />', () => {
 
   it('renders "Tomorrow" for a session 1 day out', () => {
     const tomorrow10am = new Date(2026, 4, 14, 10, 0, 0).toISOString()
-    render(
-      <NextSessionCard
-        nextSession={{
-          isLoading: false,
-          isError: false,
-          session: {
-            id: 'sess-2',
-            title: 'Form check',
-            starts_at: tomorrow10am,
-          },
-        }}
-      />,
-    )
+    renderCard({
+      nextSession: {
+        isLoading: false,
+        isError: false,
+        session: {
+          id: 'sess-2',
+          title: 'Form check',
+          starts_at: tomorrow10am,
+          confirmed: true,
+        },
+      },
+    })
 
     expect(screen.getByText(/tomorrow/i)).toBeInTheDocument()
   })
 
-  it('renders a Join link when zoom_link is set', () => {
+  it('renders a Join link when confirmed and zoom_link is set', () => {
     const todayAt230pm = new Date(2026, 4, 13, 14, 30, 0).toISOString()
-    render(
-      <NextSessionCard
-        nextSession={{
-          isLoading: false,
-          isError: false,
-          session: {
-            id: 'sess-1',
-            title: 'Coaching call',
-            starts_at: todayAt230pm,
-            zoom_link: 'https://zoom.example/abc',
-          },
-        }}
-      />,
-    )
+    renderCard({
+      nextSession: {
+        isLoading: false,
+        isError: false,
+        session: {
+          id: 'sess-1',
+          title: 'Coaching call',
+          starts_at: todayAt230pm,
+          zoom_link: 'https://zoom.example/abc',
+          confirmed: true,
+        },
+      },
+    })
 
     const join = screen.getByRole('link', { name: /join/i })
     expect(join).toHaveAttribute('href', 'https://zoom.example/abc')
@@ -139,39 +139,57 @@ describe('<NextSessionCard />', () => {
 
   it('does NOT render the Join link when zoom_link is missing', () => {
     const todayAt230pm = new Date(2026, 4, 13, 14, 30, 0).toISOString()
-    render(
-      <NextSessionCard
-        nextSession={{
-          isLoading: false,
-          isError: false,
-          session: {
-            id: 'sess-3',
-            title: 'In-person session',
-            starts_at: todayAt230pm,
-          },
-        }}
-      />,
-    )
+    renderCard({
+      nextSession: {
+        isLoading: false,
+        isError: false,
+        session: {
+          id: 'sess-3',
+          title: 'In-person session',
+          starts_at: todayAt230pm,
+          confirmed: true,
+        },
+      },
+    })
 
+    expect(screen.queryByRole('link', { name: /join/i })).not.toBeInTheDocument()
+  })
+
+  it('renders a Confirm button when the session is unconfirmed', () => {
+    const todayAt230pm = new Date(2026, 4, 13, 14, 30, 0).toISOString()
+    renderCard({
+      nextSession: {
+        isLoading: false,
+        isError: false,
+        session: {
+          id: 'sess-pending',
+          title: 'Waiting on me',
+          starts_at: todayAt230pm,
+          zoom_link: 'https://zoom.example/skip', // even with zoom, Confirm wins until the client accepts
+        },
+      },
+    })
+
+    expect(screen.getByRole('button', { name: /confirm/i })).toBeInTheDocument()
+    // Join must be suppressed until the client has confirmed.
     expect(screen.queryByRole('link', { name: /join/i })).not.toBeInTheDocument()
   })
 
   it('falls back to session_type when title is blank', () => {
     const todayAt230pm = new Date(2026, 4, 13, 14, 30, 0).toISOString()
-    render(
-      <NextSessionCard
-        nextSession={{
-          isLoading: false,
-          isError: false,
-          session: {
-            id: 'sess-4',
-            title: '',
-            session_type: 'consultation',
-            starts_at: todayAt230pm,
-          },
-        }}
-      />,
-    )
+    renderCard({
+      nextSession: {
+        isLoading: false,
+        isError: false,
+        session: {
+          id: 'sess-4',
+          title: '',
+          session_type: 'consultation',
+          starts_at: todayAt230pm,
+          confirmed: true,
+        },
+      },
+    })
 
     expect(
       screen.getByRole('heading', { name: /consultation/i }),

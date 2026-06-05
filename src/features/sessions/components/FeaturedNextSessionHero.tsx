@@ -1,6 +1,7 @@
 import { format, parseISO } from 'date-fns'
-import { Video } from 'lucide-react'
+import { Check, Video } from 'lucide-react'
 
+import { useConfirmSession } from '@/features/sessions/hooks/useConfirmSession'
 import { sessionCountdown } from '@/features/sessions/utils/session-countdown'
 import { sessionTimeRange } from '@/features/sessions/utils/format-session'
 import type { ModelsSession } from '@/lib/api/generated/types.gen'
@@ -27,6 +28,8 @@ interface Props {
 }
 
 export function FeaturedNextSessionHero({ session, coachName }: Props) {
+  const confirm = useConfirmSession()
+
   if (!session.starts_at) return null
 
   const date = parseISO(session.starts_at)
@@ -110,8 +113,20 @@ export function FeaturedNextSessionHero({ session, coachName }: Props) {
           )}
         </div>
 
-        {/* CTA */}
-        {session.zoom_link ? (
+        {/* CTA: Confirm-first when the client hasn't accepted yet,
+            then Join Zoom (if linked), then a placeholder. */}
+        {!session.confirmed && session.id ? (
+          <button
+            type="button"
+            disabled={confirm.isPending}
+            aria-label="Confirm this session"
+            onClick={() => confirm.mutate({ path: { id: session.id! }, body: { confirmed: true } })}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-3.5 text-[14px] font-bold text-[color:var(--green-deep)] shadow-lg transition-transform hover:scale-[1.02] disabled:scale-100 disabled:opacity-70 lg:w-auto"
+          >
+            <Check className="h-4 w-4" strokeWidth={2.5} />
+            {confirm.isPending ? 'Confirming…' : 'Confirm session'}
+          </button>
+        ) : session.zoom_link ? (
           <a
             href={session.zoom_link}
             target="_blank"
@@ -123,7 +138,8 @@ export function FeaturedNextSessionHero({ session, coachName }: Props) {
           </a>
         ) : (
           <div className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-white/10 px-6 py-3.5 text-[13px] font-medium text-white/80 ring-1 ring-white/20 lg:w-auto">
-            Link coming soon
+            <Check className="h-3.5 w-3.5 opacity-75" strokeWidth={2.5} aria-hidden />
+            Confirmed · link coming soon
           </div>
         )}
       </div>
