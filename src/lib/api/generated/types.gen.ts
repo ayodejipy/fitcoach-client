@@ -19,6 +19,10 @@ export type HandlersAuthResponse = {
     refresh_token?: string;
 };
 
+export type HandlersConfirmPortalSessionRequest = {
+    confirmed: boolean;
+};
+
 export type HandlersCreateCheckInRequest = {
     energy_score?: number;
     hip_inches?: number;
@@ -239,7 +243,14 @@ export type HandlersSignupRequest = {
     first_name: string;
     last_name: string;
     password: string;
-    specialty: 'personal-training' | 'online-coaching' | 'nutrition' | 'studio';
+    /**
+     * Specialty is optional at signup. Locked CRM design moved this question
+     * to onboarding Step 1, so the signup form doesn't collect it. We default
+     * to "personal-training" server-side to satisfy the NOT NULL + CHECK
+     * constraint on coaches.specialty; the user picks the real value during
+     * onboarding and PATCH /api/v1/me overwrites it before launch.
+     */
+    specialty?: 'personal-training' | 'online-coaching' | 'nutrition' | 'studio';
 };
 
 export type HandlersSlugCheckResponse = {
@@ -2194,6 +2205,10 @@ export type PortalListNotificationsData = {
          */
         unread?: boolean;
         /**
+         * filter to a single event type (e.g. 'checkin.responded' for coach replies only)
+         */
+        type?: string;
+        /**
          * 1-indexed page (default 1)
          */
         page?: number;
@@ -2488,6 +2503,47 @@ export type PortalGetSessionResponses = {
 };
 
 export type PortalGetSessionResponse = PortalGetSessionResponses[keyof PortalGetSessionResponses];
+
+export type PortalConfirmSessionData = {
+    /**
+     * { confirmed: true }
+     */
+    body: HandlersConfirmPortalSessionRequest;
+    path: {
+        /**
+         * session UUID
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v1/portal/sessions/{id}';
+};
+
+export type PortalConfirmSessionErrors = {
+    /**
+     * Bad Request
+     */
+    400: ModelsAppError;
+    /**
+     * Unauthorized
+     */
+    401: ModelsAppError;
+    /**
+     * Not Found
+     */
+    404: ModelsAppError;
+};
+
+export type PortalConfirmSessionError = PortalConfirmSessionErrors[keyof PortalConfirmSessionErrors];
+
+export type PortalConfirmSessionResponses = {
+    /**
+     * OK
+     */
+    200: ModelsSession;
+};
+
+export type PortalConfirmSessionResponse = PortalConfirmSessionResponses[keyof PortalConfirmSessionResponses];
 
 export type PortalUploadPhotoData = {
     body: {

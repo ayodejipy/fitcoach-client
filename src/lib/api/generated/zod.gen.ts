@@ -11,6 +11,10 @@ export const zHandlersAdvanceOnboardingRequest = z.object({
     step: z.int().gte(1).lte(4)
 });
 
+export const zHandlersConfirmPortalSessionRequest = z.object({
+    confirmed: z.boolean()
+});
+
 export const zHandlersCreateCheckInRequest = z.object({
     energy_score: z.int().gte(1).lte(10).optional(),
     hip_inches: z.number().optional(),
@@ -149,7 +153,7 @@ export const zHandlersSignupRequest = z.object({
         'online-coaching',
         'nutrition',
         'studio'
-    ])
+    ]).optional()
 });
 
 export const zHandlersSlugCheckResponse = z.object({
@@ -990,6 +994,7 @@ export const zPortalUpdateMeResponse = zHandlersPortalMeResponse;
 
 export const zPortalListNotificationsQuery = z.object({
     unread: z.boolean().optional(),
+    type: z.string().optional(),
     page: z.int().optional(),
     per_page: z.int().optional()
 });
@@ -1066,6 +1071,20 @@ export const zPortalGetSessionPath = z.object({
  * OK
  */
 export const zPortalGetSessionResponse = zModelsSession;
+
+/**
+ * { confirmed: true }
+ */
+export const zPortalConfirmSessionBody = zHandlersConfirmPortalSessionRequest;
+
+export const zPortalConfirmSessionPath = z.object({
+    id: z.string()
+});
+
+/**
+ * OK
+ */
+export const zPortalConfirmSessionResponse = zModelsSession;
 
 export const zPortalUploadPhotoBody = z.object({
     photo: z.string()

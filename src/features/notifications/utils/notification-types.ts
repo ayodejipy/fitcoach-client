@@ -24,6 +24,14 @@ export const COACH_REPLY_TYPES: ReadonlySet<string> = new Set([
   'checkin.responded',
 ])
 
+/**
+ * The single event-type string passed to the backend `?type=` filter on
+ * `/api/v1/portal/notifications` for the /messages inbox. The backend
+ * accepts one type at a time today; if we add a second coach-reply type,
+ * this becomes an array and `useCoachReplies` will need to fan out.
+ */
+export const COACH_REPLY_PRIMARY_TYPE = 'checkin.responded' as const
+
 export function isCoachReply(type: string | undefined): boolean {
   return typeof type === 'string' && COACH_REPLY_TYPES.has(type)
 }
