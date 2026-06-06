@@ -99,8 +99,14 @@
 
 /*
  * Keyframes for the celebration sheet (Decision 4A — streak scale-up + flame
- * burst on check-in submit success). All ~1.2s feel total; the sheet itself
- * auto-dismisses after ~1500ms in CelebrationSheet.tsx.
+ * burst on check-in submit success).
+ *
+ * Timing budget (matches CelebrationSheet.tsx):
+ *   t=0       — backdrop + sheet enter (260ms / 380ms)
+ *   t=0–600   — streak number pops
+ *   t=200–1100 — flame glow burst (200ms delay + 900ms)
+ *   t=1100–2400 — dwell (1.3s of read time)
+ *   t=2400+   — exit: backdrop fade-out + sheet-fall (260ms / 300ms)
  */
 @keyframes streak-pop {
   0%   { transform: scale(0.7); opacity: 0; }
@@ -115,13 +121,23 @@
 }
 
 @keyframes sheet-rise {
-  0%   { transform: translateY(24px); opacity: 0; }
-  100% { transform: translateY(0);    opacity: 1; }
+  0%   { transform: translateY(24px) scale(0.98); opacity: 0; }
+  100% { transform: translateY(0)    scale(1);    opacity: 1; }
+}
+
+@keyframes sheet-fall {
+  0%   { transform: translateY(0)    scale(1);    opacity: 1; }
+  100% { transform: translateY(16px) scale(0.98); opacity: 0; }
 }
 
 @keyframes backdrop-fade {
   0%   { opacity: 0; }
   100% { opacity: 1; }
+}
+
+@keyframes backdrop-fade-out {
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
 }
 
 /*

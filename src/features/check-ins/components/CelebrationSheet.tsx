@@ -2,7 +2,22 @@ import { useEffect, useState } from 'react'
 
 import { useCelebrationStore } from '@/stores/celebration'
 
-const AUTO_DISMISS_MS = 1500
+// Timing budget (mirrored in tokens.css keyframes comment):
+//   AUTO_DISMISS_MS — total dwell before auto-exit. Bumped from 1500 to
+//     2400 because the entry animations (sheet rise + streak pop + flame
+//     glow) take ~1100ms; the old value left only 400ms of actual read
+//     time, which felt rushed.
+//   EXIT_DUR_MS    — how long the sheet-fall + backdrop-fade-out runs
+//     before the component finally unmounts. Without this the sheet
+//     used to instantly disappear, which read as jarring.
+const AUTO_DISMISS_MS = 2400
+const EXIT_DUR_MS = 300
+const BACKDROP_DUR_MS = 260
+const SHEET_RISE_MS = 380
+
+const ENTER_EASE = 'cubic-bezier(0.22, 1, 0.36, 1)' // easeOutQuint
+const EXIT_EASE = 'cubic-bezier(0.4, 0, 1, 1)'      // easeIn — soft sink
+
 const FIRE = '🔥'
 function fireString(tier: number): string {
   return FIRE.repeat(Math.max(0, Math.min(5, Math.floor(tier))))
@@ -29,14 +44,16 @@ export function CelebrationSheet() {
     const t = window.setTimeout(() => {
       setVisible(false)
       // Defer the actual state clear so the exit animation has time to play.
-      window.setTimeout(dismiss, 200)
+      window.setTimeout(dismiss, EXIT_DUR_MS)
     }, AUTO_DISMISS_MS)
     return () => {
       window.clearTimeout(t)
     }
   }, [pending, dismiss])
 
-  if (!pending || !visible) return null
+  // Stay mounted across the exit animation. Only when `pending` clears (set by
+  // dismiss() after EXIT_DUR_MS) does the component actually disappear.
+  if (!pending) return null
 
   const { newCount, newTier, prevTier } = pending
   const fires = fireString(newTier)
@@ -49,14 +66,22 @@ export function CelebrationSheet() {
       aria-label="Check-in submitted"
       onClick={() => {
         setVisible(false)
-        window.setTimeout(dismiss, 200)
+        window.setTimeout(dismiss, EXIT_DUR_MS)
       }}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 px-6"
-      style={{ animation: 'backdrop-fade 220ms ease-out forwards' }}
+      style={{
+        animation: visible
+          ? `backdrop-fade ${BACKDROP_DUR_MS}ms ease-out forwards`
+          : `backdrop-fade-out ${BACKDROP_DUR_MS}ms ease-in forwards`,
+      }}
     >
       <div
         className="relative w-full max-w-[360px] overflow-hidden rounded-[22px] bg-[var(--green-deep)] px-8 pt-9 pb-7 text-center text-white shadow-[0_24px_70px_rgba(0,0,0,.4)]"
-        style={{ animation: 'sheet-rise 320ms cubic-bezier(0.22, 1, 0.36, 1) forwards' }}
+        style={{
+          animation: visible
+            ? `sheet-rise ${SHEET_RISE_MS}ms ${ENTER_EASE} forwards`
+            : `sheet-fall ${EXIT_DUR_MS}ms ${EXIT_EASE} forwards`,
+        }}
       >
         {/* Radial glow accent — same one the dashboard hero uses */}
         <div
@@ -87,7 +112,7 @@ export function CelebrationSheet() {
         <div className="relative mt-2 flex items-baseline justify-center gap-3">
           <div
             className="text-[88px] font-extrabold leading-none tracking-tight tabular-nums"
-            style={{ animation: 'streak-pop 600ms cubic-bezier(0.22, 1, 0.36, 1) both' }}
+            style={{ animation: `streak-pop 600ms ${ENTER_EASE} both` }}
           >
             {newCount}
           </div>
@@ -101,7 +126,7 @@ export function CelebrationSheet() {
             aria-hidden
             className="relative mt-4 text-[44px] leading-none"
             style={{
-              animation: 'flame-glow 900ms 200ms cubic-bezier(0.22, 1, 0.36, 1) both',
+              animation: `flame-glow 900ms 200ms ${ENTER_EASE} both`,
             }}
           >
             {fires}

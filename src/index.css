@@ -122,3 +122,39 @@ button,
 [role="button"] {
   min-height: 44px;
 }
+
+/*
+ * Sonner close-button override.
+ *
+ * Three things this rule handles:
+ *   1. Opts out of the global 44px tap floor above (otherwise the 20×20
+ *      close button stretches into a tall pill).
+ *   2. Pins right-center placement — matches the visual rhythm of icon-
+ *      left + close-right sharing a vertical baseline.
+ *   3. 24px ring in the variant text color (currentColor), gentle hover
+ *      fill via color-mix. Visible at rest so it reads as a control.
+ *
+ * Lives here next to the global tap-floor rule it counter-acts so the
+ * relationship is obvious.
+ */
+[data-sonner-toast] [data-close-button] {
+  min-height: 0;
+  width: 24px;
+  height: 24px;
+  /* Position needs !important because Sonner's defaults qualify the
+   * selector with [data-y-position]/[data-x-position] on the toaster
+   * wrapper (~5 specificity) which beats ours otherwise. */
+  left: auto !important;
+  right: 12px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  border-radius: 9999px;
+  background: transparent;
+  border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+  color: currentColor;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+[data-sonner-toast] [data-close-button]:hover {
+  background: color-mix(in srgb, currentColor 10%, transparent);
+  border-color: color-mix(in srgb, currentColor 40%, transparent);
+}

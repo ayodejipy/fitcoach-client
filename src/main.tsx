@@ -8,7 +8,7 @@ import './index.css'
 import { routeTree } from './routeTree.gen'
 import '@/lib/api/client' // side-effect: registers the auth interceptor on the typed fetchClient
 import { queryClient } from '@/lib/api/query-client'
-import { Toaster } from '@/components/feedback/Toaster'
+import { Toaster } from '@/components/ui/sonner'
 
 
 const router = createRouter({
