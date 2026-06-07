@@ -168,7 +168,7 @@ describe('<CheckInForm />', () => {
     })
     expect(observedBody).toMatchObject({
       week_start_date: THIS_MONDAY,
-      weight_lbs: 180,
+      weight: 180,
       energy_score: 7,
       mood_score: 8,
     })

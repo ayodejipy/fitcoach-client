@@ -23,6 +23,7 @@ import { useSubmitCheckIn } from '@/features/check-ins/hooks/useSubmitCheckIn'
 import { formatMondayFriendly } from '@/features/check-ins/utils/format-monday'
 import { weekEncouragement } from '@/features/check-ins/utils/week-encouragement'
 import { PhotoUpload } from '@/features/progress/components/PhotoUpload'
+import { useMe } from '@/features/profile/hooks/useMe'
 
 
 interface Props {
@@ -33,11 +34,14 @@ interface Props {
 }
 
 export function CheckInForm({ thisMonday, programWeek }: Props) {
+  const { data: me } = useMe()
+  const weightUnit = me?.weight_unit === 'kg' ? 'kg' : 'lbs'
+
   const form = useForm<CheckInSubmitFormValues>({
     resolver: zodResolver(checkInSubmitSchema),
     defaultValues: {
       week_start_date: thisMonday,
-      weight_lbs: undefined as unknown as number,
+      weight: undefined as unknown as number,
       energy_score: undefined as unknown as number,
       mood_score: undefined as unknown as number,
       sleep_hrs: undefined,
@@ -54,7 +58,7 @@ export function CheckInForm({ thisMonday, programWeek }: Props) {
       onInlineError: (message) =>
         // Backend rejection (e.g., 409 duplicate week) pins to weight —
         // most visible field, generic-enough to read for any backend error.
-        form.setError('weight_lbs', { type: 'server', message }),
+        form.setError('weight', { type: 'server', message }),
     })
 
   const eyebrow = programWeek ? `Week ${programWeek} check-in` : 'This week'
@@ -104,10 +108,10 @@ export function CheckInForm({ thisMonday, programWeek }: Props) {
           <div className="mt-5">
             <FormField
               control={form.control}
-              name="weight_lbs"
+              name="weight"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Weight (lbs)</FormLabel>
+                  <FormLabel>Weight ({weightUnit})</FormLabel>
                   <FormControl>
                     <Input
                       type="number"

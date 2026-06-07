@@ -32,7 +32,7 @@ export type HandlersCreateCheckInRequest = {
     sleep_hrs?: number;
     waist_inches?: number;
     week_start_date: string;
-    weight_lbs?: number;
+    weight?: number;
 };
 
 export type HandlersCreateClientRequest = {
@@ -50,7 +50,7 @@ export type HandlersCreateClientRequest = {
     send_invite?: boolean;
     start_date: string;
     status?: 'active' | 'paused' | 'new' | 'ended' | 'trial';
-    target_weight_lbs?: number;
+    target_weight?: number;
 };
 
 export type HandlersCreateInvoiceRequest = {
@@ -76,6 +76,14 @@ export type HandlersCreateSessionRequest = {
     starts_at: string;
     title?: string;
     zoom_link?: string;
+};
+
+export type HandlersIntegrationStatus = {
+    account_email?: string;
+    connected_at?: string;
+    last_used_at?: string;
+    provider?: string;
+    scopes?: Array<string>;
 };
 
 export type HandlersInviteClientPortalResponse = {
@@ -110,6 +118,10 @@ export type HandlersListClientsResponse = {
      */
     total?: number;
     total_pages?: number;
+};
+
+export type HandlersListIntegrationsResponse = {
+    integrations?: Array<HandlersIntegrationStatus>;
 };
 
 export type HandlersListNotificationsResponse = {
@@ -216,6 +228,13 @@ export type HandlersPortalMeResponse = {
      */
     start_date?: string;
     status?: string;
+    /**
+     * Coach display preferences propagated to the portal so it labels
+     * weight inputs and progress charts in the unit the coach configured.
+     * Sourced from coach_settings; falls back to 'lbs' (the column default)
+     * if the settings lookup fails for any reason.
+     */
+    weight_unit?: string;
 };
 
 export type HandlersPortalRefreshRequest = {
@@ -258,6 +277,10 @@ export type HandlersSlugCheckResponse = {
     slug?: string;
 };
 
+export type HandlersStartGoogleIntegrationResponse = {
+    authorize_url?: string;
+};
+
 export type HandlersUnreadCountResponse = {
     count?: number;
 };
@@ -283,7 +306,7 @@ export type HandlersUpdateClientRequest = {
     program_week?: number;
     start_date?: string;
     status?: 'active' | 'paused' | 'new' | 'ended' | 'trial';
-    target_weight_lbs?: number;
+    target_weight?: number;
 };
 
 export type HandlersUpdateMeRequest = {
@@ -304,6 +327,13 @@ export type HandlersUpdateMySettingsRequest = {
     buffer_mins?: number;
     checkin_days?: Array<number>;
     checkin_deadline?: string;
+    /**
+     * Currency is the coach's preferred display currency for money on
+     * dashboards/invoices. ISO 4217. CHECK constraint on the column
+     * covers the starter set; we re-validate here with oneof so a bad
+     * value 400s before we make the round-trip.
+     */
+    currency?: 'USD' | 'EUR' | 'NGN';
     max_sessions_per_day?: number;
     min_notice_hrs?: number;
     notif_checkin_new?: boolean;
@@ -313,8 +343,21 @@ export type HandlersUpdateMySettingsRequest = {
     notif_payment_received?: boolean;
     notif_schedule_change?: boolean;
     notif_schedule_digest?: boolean;
-    reminder_hours?: number;
+    /**
+     * ReminderTime is the wall-clock "HH:MM" 24h time the reminder fires
+     * on each scheduled check-in day. We validate the shape in-handler
+     * via models.ParseHHMM (same path as CheckinDeadline) rather than
+     * the struct tag.
+     */
+    reminder_time?: string;
     timezone?: string;
+    /**
+     * WeightUnit is the coach's preferred display unit for client weight
+     * across the dashboard, charts, invoices, and the portal check-in
+     * form. CHECK constraint on the column covers the set; we re-validate
+     * here so a bad value 400s before the round-trip.
+     */
+    weight_unit?: 'kg' | 'lbs';
 };
 
 export type HandlersUpdatePaymentRequest = {
@@ -370,7 +413,7 @@ export type ModelsCheckIn = {
      * YYYY-MM-DD (Monday)
      */
     week_start_date?: string;
-    weight_lbs?: number;
+    weight?: number;
 };
 
 export type ModelsClient = {
@@ -396,7 +439,7 @@ export type ModelsClient = {
     start_date?: string;
     status?: string;
     streak_weeks?: number;
-    target_weight_lbs?: number;
+    target_weight?: number;
     updated_at?: string;
 };
 
@@ -454,7 +497,7 @@ export type ModelsCoachCheckIn = {
      * YYYY-MM-DD (Monday)
      */
     week_start_date?: string;
-    weight_lbs?: number;
+    weight?: number;
 };
 
 export type ModelsCoachPayment = {
@@ -510,6 +553,10 @@ export type ModelsCoachSettings = {
      */
     checkin_deadline?: string;
     coach_id?: string;
+    /**
+     * ISO 4217: USD | EUR | NGN
+     */
+    currency?: string;
     custom_questions?: Array<ModelsCustomQuestion>;
     max_sessions_per_day?: number;
     min_notice_hrs?: number;
@@ -520,9 +567,16 @@ export type ModelsCoachSettings = {
     notif_payment_received?: boolean;
     notif_schedule_change?: boolean;
     notif_schedule_digest?: boolean;
-    reminder_hours?: number;
+    /**
+     * "HH:MM" 24h — clock time the reminder fires
+     */
+    reminder_time?: string;
     timezone?: string;
     updated_at?: string;
+    /**
+     * kg | lbs
+     */
+    weight_unit?: string;
 };
 
 export type ModelsCustomQuestion = {
@@ -1211,6 +1265,122 @@ export type PostApiV1ClientsByIdInvitePortalResponses = {
 };
 
 export type PostApiV1ClientsByIdInvitePortalResponse = PostApiV1ClientsByIdInvitePortalResponses[keyof PostApiV1ClientsByIdInvitePortalResponses];
+
+export type GetApiV1IntegrationsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/integrations';
+};
+
+export type GetApiV1IntegrationsErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ModelsAppError;
+};
+
+export type GetApiV1IntegrationsError = GetApiV1IntegrationsErrors[keyof GetApiV1IntegrationsErrors];
+
+export type GetApiV1IntegrationsResponses = {
+    /**
+     * OK
+     */
+    200: HandlersListIntegrationsResponse;
+};
+
+export type GetApiV1IntegrationsResponse = GetApiV1IntegrationsResponses[keyof GetApiV1IntegrationsResponses];
+
+export type DeleteApiV1IntegrationsGoogleData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/integrations/google';
+};
+
+export type DeleteApiV1IntegrationsGoogleErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ModelsAppError;
+    /**
+     * no connection to disconnect
+     */
+    404: ModelsAppError;
+};
+
+export type DeleteApiV1IntegrationsGoogleError = DeleteApiV1IntegrationsGoogleErrors[keyof DeleteApiV1IntegrationsGoogleErrors];
+
+export type DeleteApiV1IntegrationsGoogleResponses = {
+    /**
+     * No Content
+     */
+    204: void;
+};
+
+export type DeleteApiV1IntegrationsGoogleResponse = DeleteApiV1IntegrationsGoogleResponses[keyof DeleteApiV1IntegrationsGoogleResponses];
+
+export type GetApiV1IntegrationsGoogleCallbackData = {
+    body?: never;
+    path?: never;
+    query: {
+        /**
+         * OAuth state echoed back by Google
+         */
+        state: string;
+        /**
+         * OAuth authorization code
+         */
+        code: string;
+    };
+    url: '/api/v1/integrations/google/callback';
+};
+
+export type GetApiV1IntegrationsGoogleCallbackErrors = {
+    /**
+     * Bad Request
+     */
+    400: ModelsAppError;
+    /**
+     * Unauthorized
+     */
+    401: ModelsAppError;
+    /**
+     * Service Unavailable
+     */
+    503: ModelsAppError;
+};
+
+export type GetApiV1IntegrationsGoogleCallbackError = GetApiV1IntegrationsGoogleCallbackErrors[keyof GetApiV1IntegrationsGoogleCallbackErrors];
+
+export type PostApiV1IntegrationsGoogleStartData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/integrations/google/start';
+};
+
+export type PostApiV1IntegrationsGoogleStartErrors = {
+    /**
+     * Unauthorized
+     */
+    401: ModelsAppError;
+    /**
+     * integration secrets not configured on this deployment
+     */
+    503: ModelsAppError;
+};
+
+export type PostApiV1IntegrationsGoogleStartError = PostApiV1IntegrationsGoogleStartErrors[keyof PostApiV1IntegrationsGoogleStartErrors];
+
+export type PostApiV1IntegrationsGoogleStartResponses = {
+    /**
+     * OK
+     */
+    200: HandlersStartGoogleIntegrationResponse;
+};
+
+export type PostApiV1IntegrationsGoogleStartResponse = PostApiV1IntegrationsGoogleStartResponses[keyof PostApiV1IntegrationsGoogleStartResponses];
 
 export type GetApiV1MeData = {
     body?: never;
@@ -2085,7 +2255,7 @@ export type PortalSubmitCheckInErrors = {
      */
     401: ModelsAppError;
     /**
-     * check-in for this week already exists
+     * weekly check-in allowance reached
      */
     409: ModelsAppError;
 };

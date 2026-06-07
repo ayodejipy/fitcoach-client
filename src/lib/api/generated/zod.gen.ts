@@ -24,7 +24,7 @@ export const zHandlersCreateCheckInRequest = z.object({
     sleep_hrs: z.number().gte(0).lte(24).optional(),
     waist_inches: z.number().optional(),
     week_start_date: z.string(),
-    weight_lbs: z.number().optional()
+    weight: z.number().optional()
 });
 
 export const zHandlersCreateClientRequest = z.object({
@@ -48,7 +48,7 @@ export const zHandlersCreateClientRequest = z.object({
         'ended',
         'trial'
     ]).optional(),
-    target_weight_lbs: z.number().optional()
+    target_weight: z.number().optional()
 });
 
 export const zHandlersCreateInvoiceRequest = z.object({
@@ -75,10 +75,22 @@ export const zHandlersCreateSessionRequest = z.object({
     zoom_link: z.string().max(500).optional()
 });
 
+export const zHandlersIntegrationStatus = z.object({
+    account_email: z.string().optional(),
+    connected_at: z.string().optional(),
+    last_used_at: z.string().optional(),
+    provider: z.string().optional(),
+    scopes: z.array(z.string()).optional()
+});
+
 export const zHandlersInviteClientPortalResponse = z.object({
     expires_at: z.string().optional(),
     invite_token: z.string().optional(),
     invite_url: z.string().optional()
+});
+
+export const zHandlersListIntegrationsResponse = z.object({
+    integrations: z.array(zHandlersIntegrationStatus).optional()
 });
 
 export const zHandlersLoginRequest = z.object({
@@ -124,7 +136,8 @@ export const zHandlersPortalMeResponse = z.object({
     program_total: z.int().optional(),
     program_week: z.int().optional(),
     start_date: z.string().optional(),
-    status: z.string().optional()
+    status: z.string().optional(),
+    weight_unit: z.string().optional()
 });
 
 export const zHandlersPortalRefreshRequest = z.object({
@@ -161,6 +174,10 @@ export const zHandlersSlugCheckResponse = z.object({
     slug: z.string().optional()
 });
 
+export const zHandlersStartGoogleIntegrationResponse = z.object({
+    authorize_url: z.string().optional()
+});
+
 export const zHandlersUnreadCountResponse = z.object({
     count: z.int().optional()
 });
@@ -192,7 +209,7 @@ export const zHandlersUpdateClientRequest = z.object({
         'ended',
         'trial'
     ]).optional(),
-    target_weight_lbs: z.number().optional()
+    target_weight: z.number().optional()
 });
 
 export const zHandlersUpdateMeRequest = z.object({
@@ -218,6 +235,11 @@ export const zHandlersUpdateMySettingsRequest = z.object({
     buffer_mins: z.int().gte(0).lte(1440).optional(),
     checkin_days: z.array(z.int()).optional(),
     checkin_deadline: z.string().optional(),
+    currency: z.enum([
+        'USD',
+        'EUR',
+        'NGN'
+    ]).optional(),
     max_sessions_per_day: z.int().gte(0).lte(100).optional(),
     min_notice_hrs: z.int().gte(0).lte(720).optional(),
     notif_checkin_new: z.boolean().optional(),
@@ -227,8 +249,9 @@ export const zHandlersUpdateMySettingsRequest = z.object({
     notif_payment_received: z.boolean().optional(),
     notif_schedule_change: z.boolean().optional(),
     notif_schedule_digest: z.boolean().optional(),
-    reminder_hours: z.int().gte(1).lte(168).optional(),
-    timezone: z.string().max(64).optional()
+    reminder_time: z.string().optional(),
+    timezone: z.string().max(64).optional(),
+    weight_unit: z.enum(['kg', 'lbs']).optional()
 });
 
 export const zHandlersUpdatePaymentRequest = z.object({
@@ -292,7 +315,7 @@ export const zModelsCheckIn = z.object({
     submitted_at: z.string().optional(),
     waist_inches: z.number().optional(),
     week_start_date: z.string().optional(),
-    weight_lbs: z.number().optional()
+    weight: z.number().optional()
 });
 
 export const zHandlersListPortalCheckInsResponse = z.object({
@@ -323,7 +346,7 @@ export const zModelsClient = z.object({
     start_date: z.string().optional(),
     status: z.string().optional(),
     streak_weeks: z.int().optional(),
-    target_weight_lbs: z.number().optional(),
+    target_weight: z.number().optional(),
     updated_at: z.string().optional()
 });
 
@@ -386,7 +409,7 @@ export const zModelsCoachCheckIn = z.object({
     submitted_at: z.string().optional(),
     waist_inches: z.number().optional(),
     week_start_date: z.string().optional(),
-    weight_lbs: z.number().optional()
+    weight: z.number().optional()
 });
 
 export const zHandlersListCheckInsResponse = z.object({
@@ -470,6 +493,7 @@ export const zModelsCoachSettings = z.object({
     checkin_days: z.array(z.int()).optional(),
     checkin_deadline: z.string().optional(),
     coach_id: z.string().optional(),
+    currency: z.string().optional(),
     custom_questions: z.array(zModelsCustomQuestion).optional(),
     max_sessions_per_day: z.int().optional(),
     min_notice_hrs: z.int().optional(),
@@ -480,9 +504,10 @@ export const zModelsCoachSettings = z.object({
     notif_payment_received: z.boolean().optional(),
     notif_schedule_change: z.boolean().optional(),
     notif_schedule_digest: z.boolean().optional(),
-    reminder_hours: z.int().optional(),
+    reminder_time: z.string().optional(),
     timezone: z.string().optional(),
-    updated_at: z.string().optional()
+    updated_at: z.string().optional(),
+    weight_unit: z.string().optional()
 });
 
 export const zModelsDashboardStats = z.object({
@@ -723,6 +748,26 @@ export const zPostApiV1ClientsByIdInvitePortalPath = z.object({
  * OK
  */
 export const zPostApiV1ClientsByIdInvitePortalResponse = zHandlersInviteClientPortalResponse;
+
+/**
+ * OK
+ */
+export const zGetApiV1IntegrationsResponse = zHandlersListIntegrationsResponse;
+
+/**
+ * No Content
+ */
+export const zDeleteApiV1IntegrationsGoogleResponse = z.void();
+
+export const zGetApiV1IntegrationsGoogleCallbackQuery = z.object({
+    state: z.string(),
+    code: z.string()
+});
+
+/**
+ * OK
+ */
+export const zPostApiV1IntegrationsGoogleStartResponse = zHandlersStartGoogleIntegrationResponse;
 
 /**
  * OK

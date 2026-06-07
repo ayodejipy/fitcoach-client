@@ -1,6 +1,7 @@
 import { BrandSurface } from '@/components/ui/BrandSurface'
 import type { UseStreakResult } from '@/features/check-ins/hooks/useStreak'
 import type { WeightDelta } from '@/features/progress/hooks/useWeightDelta'
+import { useMe } from '@/features/profile/hooks/useMe'
 
 /*
  * ProgressHero — 3-stat band at the top of /progress.
@@ -31,6 +32,9 @@ export function ProgressHero({
   weeksLogged,
   programTotal,
 }: Props) {
+  const { data: me } = useMe()
+  const weightUnit = me?.weight_unit === 'kg' ? 'kg' : 'lbs'
+
   return (
     <section className="grid gap-4 grid-cols-2 lg:grid-cols-3">
       {/* ---- Weight delta ---- */}
@@ -48,11 +52,11 @@ export function ProgressHero({
               {weight.deltaLbs.toFixed(1)}
             </span>
             <span className="text-[15px] font-medium text-[color:var(--text-secondary)]">
-              lbs
+              {weightUnit}
             </span>
           </div>
           <p className="mt-1 text-[12.5px] text-[color:var(--text-secondary)]">
-            since Week 1 · now {weight.latestLbs.toFixed(1)} lbs
+            since Week 1 · now {weight.latestLbs.toFixed(1)} {weightUnit}
           </p>
         </BrandSurface>
       ) : (

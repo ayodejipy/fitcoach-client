@@ -36,12 +36,12 @@ export function useWeightDelta(): WeightDelta | null {
     // Backend returns DESC by week_start_date; flip to ASC so first = earliest.
     const oldestFirst = [...checkIns].reverse()
     const withWeight = oldestFirst.filter(
-      (checkIn) => typeof checkIn.weight_lbs === 'number',
+      (checkIn) => typeof checkIn.weight === 'number',
     )
     if (withWeight.length < 2) return null
 
-    const startingLbs = withWeight[0]!.weight_lbs as number
-    const latestLbs = withWeight[withWeight.length - 1]!.weight_lbs as number
+    const startingLbs = withWeight[0]!.weight as number
+    const latestLbs = withWeight[withWeight.length - 1]!.weight as number
     return {
       startingLbs,
       latestLbs,

@@ -10,7 +10,7 @@ import { z } from 'zod'
  * optional from the backend's perspective; the form requires a few of them
  * to make the check-in meaningful:
  *
- *   - weight_lbs: required in the form (the headline metric coaches react to).
+ *   - weight: required in the form (the headline metric coaches react to).
  *   - energy_score / mood_score: required, 1-10 (sliders).
  *   - sleep_hrs: optional, 0-24.
  *   - notes: optional, max 10000 chars (the backend cap).
@@ -27,7 +27,7 @@ export const checkInSubmitSchema = z.object({
   week_start_date: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'Internal: missing week start date.'),
-  weight_lbs: z
+  weight: z
     .number({ message: 'How much do you weigh this week?' })
     .positive('Weight has to be positive.')
     .max(2000, 'That weight looks like a typo.'),

@@ -1,5 +1,6 @@
 import { TrendCard } from '@/features/progress/components/TrendCard'
 import type { ProgressData } from '@/features/progress/hooks/useProgressData'
+import { useMe } from '@/features/profile/hooks/useMe'
 
 /*
  * TrendsSection — the three small charts (weight/energy/mood) stacked
@@ -24,6 +25,9 @@ interface Props {
 }
 
 export function TrendsSection({ data }: Props) {
+  const { data: me } = useMe()
+  const weightUnit = me?.weight_unit === 'kg' ? 'kg' : 'lbs'
+
   return (
     <section className="space-y-4">
       <h2
@@ -35,10 +39,10 @@ export function TrendsSection({ data }: Props) {
       <div className="space-y-4">
         <TrendCard
           title="Weight"
-          subtitle="lbs"
+          subtitle={weightUnit}
           stroke="var(--green-brand)"
           data={data.weightSeries}
-          valueSuffix=" lbs"
+          valueSuffix={` ${weightUnit}`}
           formatValue={(value) => value.toFixed(1)}
         />
         <TrendCard

@@ -75,7 +75,7 @@ export function useProgressData(): ProgressData {
       weightSeries.push({
         weekStartDate: wsd,
         label,
-        value: typeof ci.weight_lbs === 'number' ? ci.weight_lbs : null,
+        value: typeof ci.weight === 'number' ? ci.weight : null,
       })
       energySeries.push({
         weekStartDate: wsd,

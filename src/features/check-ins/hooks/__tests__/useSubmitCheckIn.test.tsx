@@ -79,7 +79,7 @@ function ci(week_start_date: string) {
   return {
     id: `ci-${week_start_date}`,
     week_start_date,
-    weight_lbs: 180,
+    weight: 180,
     energy_score: 7,
     mood_score: 8,
     submitted_at: '2026-05-04T10:00:00Z',
@@ -153,7 +153,7 @@ describe('useSubmitCheckIn', () => {
 
       result.current.submit({
         week_start_date: THIS_MONDAY,
-        weight_lbs: 178,
+        weight: 178,
         energy_score: 8,
         mood_score: 9,
       })
@@ -177,7 +177,7 @@ describe('useSubmitCheckIn', () => {
 
       result.current.submit({
         week_start_date: THIS_MONDAY,
-        weight_lbs: 178,
+        weight: 178,
         energy_score: 8,
         mood_score: 9,
       })
@@ -211,7 +211,7 @@ describe('useSubmitCheckIn', () => {
 
       result.current.submit({
         week_start_date: THIS_MONDAY,
-        weight_lbs: 178,
+        weight: 178,
         energy_score: 8,
         mood_score: 9,
       })
@@ -248,7 +248,7 @@ describe('useSubmitCheckIn', () => {
         result.current.submit(
           {
             week_start_date: THIS_MONDAY,
-            weight_lbs: 178,
+            weight: 178,
             energy_score: 8,
             mood_score: 9,
           },
@@ -287,7 +287,7 @@ describe('useSubmitCheckIn', () => {
       result.current.submit(
         {
           week_start_date: THIS_MONDAY,
-          weight_lbs: 178,
+          weight: 178,
           energy_score: 8,
           mood_score: 9,
         },

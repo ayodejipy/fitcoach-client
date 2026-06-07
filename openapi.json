@@ -1077,6 +1077,187 @@
                 }
             }
         },
+        "/api/v1/integrations": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "integrations"
+                ],
+                "summary": "List my integrations",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/handlers.ListIntegrationsResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/models.AppError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/integrations/google": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "integrations"
+                ],
+                "summary": "Disconnect Google Calendar",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/models.AppError"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "no connection to disconnect",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/models.AppError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/integrations/google/callback": {
+            "get": {
+                "tags": [
+                    "integrations"
+                ],
+                "summary": "Google Calendar OAuth callback",
+                "parameters": [
+                    {
+                        "description": "OAuth state echoed back by Google",
+                        "name": "state",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "OAuth authorization code",
+                        "name": "code",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Redirect to /settings on the CRM"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/models.AppError"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/models.AppError"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Service Unavailable",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/models.AppError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/integrations/google/start": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "tags": [
+                    "integrations"
+                ],
+                "summary": "Start Google Calendar OAuth (returns the consent URL)",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/handlers.StartGoogleIntegrationResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/models.AppError"
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "integration secrets not configured on this deployment",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/models.AppError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/me": {
             "get": {
                 "security": [
@@ -2468,7 +2649,7 @@
                         "BearerAuth": []
                     }
                 ],
-                "description": "Client portal: create a new weekly check-in. Returns 409 if a check-in already exists for this week (any date in the week resolves to the same Monday).",
+                "description": "Client portal: create a new weekly check-in. Returns 409 when the client has already used their weekly allowance (one submission per scheduled checkin_day on the coach's settings).",
                 "tags": [
                     "portal-checkins"
                 ],
@@ -2517,7 +2698,7 @@
                         }
                     },
                     "409": {
-                        "description": "check-in for this week already exists",
+                        "description": "weekly check-in allowance reached",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4009,7 +4190,7 @@
                     "week_start_date": {
                         "type": "string"
                     },
-                    "weight_lbs": {
+                    "weight": {
                         "type": "number"
                     }
                 }
@@ -4085,7 +4266,7 @@
                             "trial"
                         ]
                     },
-                    "target_weight_lbs": {
+                    "target_weight": {
                         "type": "number"
                     }
                 }
@@ -4163,6 +4344,29 @@
                     }
                 }
             },
+            "handlers.IntegrationStatus": {
+                "type": "object",
+                "properties": {
+                    "account_email": {
+                        "type": "string"
+                    },
+                    "connected_at": {
+                        "type": "string"
+                    },
+                    "last_used_at": {
+                        "type": "string"
+                    },
+                    "provider": {
+                        "type": "string"
+                    },
+                    "scopes": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
             "handlers.InviteClientPortalResponse": {
                 "type": "object",
                 "properties": {
@@ -4224,6 +4428,17 @@
                     },
                     "total_pages": {
                         "type": "integer"
+                    }
+                }
+            },
+            "handlers.ListIntegrationsResponse": {
+                "type": "object",
+                "properties": {
+                    "integrations": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/handlers.IntegrationStatus"
+                        }
                     }
                 }
             },
@@ -4496,6 +4711,10 @@
                     },
                     "status": {
                         "type": "string"
+                    },
+                    "weight_unit": {
+                        "description": "Coach display preferences propagated to the portal so it labels\nweight inputs and progress charts in the unit the coach configured.\nSourced from coach_settings; falls back to 'lbs' (the column default)\nif the settings lookup fails for any reason.",
+                        "type": "string"
                     }
                 }
             },
@@ -4605,6 +4824,14 @@
                     }
                 }
             },
+            "handlers.StartGoogleIntegrationResponse": {
+                "type": "object",
+                "properties": {
+                    "authorize_url": {
+                        "type": "string"
+                    }
+                }
+            },
             "handlers.UnreadCountResponse": {
                 "type": "object",
                 "properties": {
@@ -4697,7 +4924,7 @@
                             "trial"
                         ]
                     },
-                    "target_weight_lbs": {
+                    "target_weight": {
                         "type": "number"
                     }
                 }
@@ -4774,6 +5001,15 @@
                     "checkin_deadline": {
                         "type": "string"
                     },
+                    "currency": {
+                        "description": "Currency is the coach's preferred display currency for money on\ndashboards/invoices. ISO 4217. CHECK constraint on the column\ncovers the starter set; we re-validate here with oneof so a bad\nvalue 400s before we make the round-trip.",
+                        "type": "string",
+                        "enum": [
+                            "USD",
+                            "EUR",
+                            "NGN"
+                        ]
+                    },
                     "max_sessions_per_day": {
                         "type": "integer",
                         "maximum": 100,
@@ -4805,14 +5041,21 @@
                     "notif_schedule_digest": {
                         "type": "boolean"
                     },
-                    "reminder_hours": {
-                        "type": "integer",
-                        "maximum": 168,
-                        "minimum": 1
+                    "reminder_time": {
+                        "description": "ReminderTime is the wall-clock \"HH:MM\" 24h time the reminder fires\non each scheduled check-in day. We validate the shape in-handler\nvia models.ParseHHMM (same path as CheckinDeadline) rather than\nthe struct tag.",
+                        "type": "string"
                     },
                     "timezone": {
                         "type": "string",
                         "maxLength": 64
+                    },
+                    "weight_unit": {
+                        "description": "WeightUnit is the coach's preferred display unit for client weight\nacross the dashboard, charts, invoices, and the portal check-in\nform. CHECK constraint on the column covers the set; we re-validate\nhere so a bad value 400s before the round-trip.",
+                        "type": "string",
+                        "enum": [
+                            "kg",
+                            "lbs"
+                        ]
                     }
                 }
             },
@@ -4972,7 +5215,7 @@
                         "description": "YYYY-MM-DD (Monday)",
                         "type": "string"
                     },
-                    "weight_lbs": {
+                    "weight": {
                         "type": "number"
                     }
                 }
@@ -5038,7 +5281,7 @@
                     "streak_weeks": {
                         "type": "integer"
                     },
-                    "target_weight_lbs": {
+                    "target_weight": {
                         "type": "number"
                     },
                     "updated_at": {
@@ -5179,7 +5422,7 @@
                         "description": "YYYY-MM-DD (Monday)",
                         "type": "string"
                     },
-                    "weight_lbs": {
+                    "weight": {
                         "type": "number"
                     }
                 }
@@ -5306,6 +5549,10 @@
                     "coach_id": {
                         "type": "string"
                     },
+                    "currency": {
+                        "description": "ISO 4217: USD | EUR | NGN",
+                        "type": "string"
+                    },
                     "custom_questions": {
                         "type": "array",
                         "items": {
@@ -5339,13 +5586,18 @@
                     "notif_schedule_digest": {
                         "type": "boolean"
                     },
-                    "reminder_hours": {
-                        "type": "integer"
+                    "reminder_time": {
+                        "description": "\"HH:MM\" 24h — clock time the reminder fires",
+                        "type": "string"
                     },
                     "timezone": {
                         "type": "string"
                     },
                     "updated_at": {
+                        "type": "string"
+                    },
+                    "weight_unit": {
+                        "description": "kg | lbs",
                         "type": "string"
                     }
                 }
